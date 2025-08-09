@@ -3,6 +3,8 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
+export const dynamic = 'force-dynamic'
+
 export async function DELETE(request: NextRequest) {
   try {
     const url = new URL(request.url)
