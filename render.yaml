@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: finclick
+    env: node
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: finclick-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_PASSWORD
+        generateValue: true
+
+databases:
+  - name: finclick-db
+    databaseName: finclick
+    user: finclick
