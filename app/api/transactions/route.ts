@@ -3,6 +3,51 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
+export async function DELETE(request: NextRequest) {
+  try {
+    const url = new URL(request.url)
+    const id = url.searchParams.get('id')
+    const all = url.searchParams.get('all') === 'true'
+    
+    if (!id && !all) {
+      return NextResponse.json(
+        { error: 'Transaction ID or all=true parameter required' },
+        { status: 400 }
+      )
+    }
+    
+    if (all) {
+      // Delete all transactions
+      const result = await prisma.transaction.deleteMany({})
+      return NextResponse.json({ 
+        deleted: result.count,
+        message: `Deleted ${result.count} transactions` 
+      })
+    } else {
+      // Delete single transaction
+      await prisma.transaction.delete({
+        where: { id }
+      })
+      return NextResponse.json({ message: 'Transaction deleted successfully' })
+    }
+    
+  } catch (error: any) {
+    console.error('Delete transaction error:', error)
+    
+    if (error.code === 'P2025') {
+      return NextResponse.json(
+        { error: 'Transaction not found' },
+        { status: 404 }
+      )
+    }
+    
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
     const url = new URL(request.url)

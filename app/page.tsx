@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Upload, Settings, LogOut, Users, Filter, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Upload, Settings, LogOut, Users, Filter, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react'
 import UploadModal from '@/components/UploadModal'
 
 interface PageData {
@@ -68,6 +68,11 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [showTransactions, setShowTransactions] = useState(true)
   const [showUploadModal, setShowUploadModal] = useState(false)
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    show: boolean
+    transactionId?: string
+    deleteAll?: boolean
+  }>({ show: false })
   
   // Transaction filters
   const [filters, setFilters] = useState({
@@ -170,6 +175,32 @@ export default function Dashboard() {
     const [year, month] = monthStr.split('-')
     const date = new Date(parseInt(year), parseInt(month) - 1)
     return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+  }
+  
+  const handleDeleteTransaction = async (transactionId?: string, deleteAll?: boolean) => {
+    try {
+      const params = new URLSearchParams()
+      if (deleteAll) {
+        params.set('all', 'true')
+      } else if (transactionId) {
+        params.set('id', transactionId)
+      }
+      
+      const response = await fetch(`/api/transactions?${params}`, {
+        method: 'DELETE'
+      })
+      
+      if (response.ok) {
+        // Refresh data
+        fetchPageData()
+        fetchTransactions()
+        setDeleteConfirm({ show: false })
+      } else {
+        console.error('Failed to delete transaction(s)')
+      }
+    } catch (error) {
+      console.error('Delete error:', error)
+    }
   }
   
   useEffect(() => {
@@ -357,6 +388,13 @@ export default function Dashboard() {
         <div className="space-y-6 mt-12">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-gray-900">Transactions</h2>
+            <button
+              onClick={() => setDeleteConfirm({ show: true, deleteAll: true })}
+              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 inline-flex items-center text-sm"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Clear All
+            </button>
           </div>
             
             {/* Filters */}
@@ -465,6 +503,9 @@ export default function Dashboard() {
                         <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
                           Category
                         </th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                          Actions
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -511,6 +552,15 @@ export default function Dashboard() {
                               {tx.categoryName || 'Uncategorized'}
                             </span>
                           </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <button
+                              onClick={() => setDeleteConfirm({ show: true, transactionId: tx.id })}
+                              className="text-red-600 hover:text-red-900 hover:bg-red-50 p-1 rounded"
+                              title="Delete transaction"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -526,6 +576,46 @@ export default function Dashboard() {
             )}
         </div>
       </div>
+      
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm.show && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <div className="flex items-center mb-4">
+              <div className="flex-shrink-0">
+                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                  <Trash2 className="w-6 h-6 text-red-600" />
+                </div>
+              </div>
+              <div className="ml-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {deleteConfirm.deleteAll ? 'Delete All Transactions' : 'Delete Transaction'}
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  {deleteConfirm.deleteAll 
+                    ? 'This will permanently delete all transactions. This action cannot be undone.'
+                    : 'This will permanently delete this transaction. This action cannot be undone.'
+                  }
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setDeleteConfirm({ show: false })}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeleteTransaction(deleteConfirm.transactionId, deleteConfirm.deleteAll)}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md"
+              >
+                {deleteConfirm.deleteAll ? 'Delete All' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Upload Modal */}
       <UploadModal
