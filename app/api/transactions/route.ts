@@ -26,7 +26,7 @@ export async function DELETE(request: NextRequest) {
     } else {
       // Delete single transaction
       await prisma.transaction.delete({
-        where: { id }
+        where: { id: id! }
       })
       return NextResponse.json({ message: 'Transaction deleted successfully' })
     }
