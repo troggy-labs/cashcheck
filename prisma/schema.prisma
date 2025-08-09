@@ -1,0 +1,138 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Provider {
+  CHASE
+  VENMO
+}
+
+enum AccountType {
+  CHECKING
+  WALLET
+}
+
+enum RuleMatchType {
+  CONTAINS
+  REGEX
+}
+
+enum Direction {
+  INFLOW
+  OUTFLOW
+  NONE
+}
+
+enum CategoryKind {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+enum FileStatus {
+  PENDING
+  PROCESSED
+  ERROR
+}
+
+model Account {
+  id          String        @id @default(uuid())
+  provider    Provider
+  type        AccountType
+  displayName String
+  last4       String?
+  currency    String        @default("USD")
+  createdAt   DateTime      @default(now())
+  
+  transactions Transaction[]
+  rules        CategoryRule[]
+  
+  @@unique([provider, type, displayName])
+}
+
+model Category {
+  id        String       @id @default(uuid())
+  name      String       @unique
+  kind      CategoryKind
+  parentId  String?
+  createdAt DateTime     @default(now())
+  
+  rules CategoryRule[]
+  txs   Transaction[]
+}
+
+model ImportFile {
+  id          String      @id @default(uuid())
+  source      Provider
+  filename    String
+  sha256      String      @unique
+  rowCount    Int         @default(0)
+  imported    Int         @default(0)
+  duplicates  Int         @default(0)
+  status      FileStatus  @default(PENDING)
+  error       String?
+  processedAt DateTime?
+  createdAt   DateTime    @default(now())
+  
+  transactions Transaction[]
+}
+
+model Transaction {
+  id                String      @id @default(uuid())
+  source            Provider
+  externalId        String?
+  accountId         String
+  account           Account     @relation(fields: [accountId], references: [id])
+  postedAt          DateTime
+  postedDate        DateTime
+  descriptionRaw    String
+  descriptionNorm   String
+  amountCents       Int         // + inflow, - outflow
+  currency          String      @default("USD")
+  categoryId        String?
+  category          Category?   @relation(fields: [categoryId], references: [id])
+  isTransfer        Boolean     @default(false)
+  transferGroupId   String?
+  transferCandidate Boolean     @default(false) // for review queue
+  importFileId      String?
+  importFile        ImportFile? @relation(fields: [importFileId], references: [id])
+  hashUnique        String      @unique
+  notes             String?
+  createdAt         DateTime    @default(now())
+
+  @@index([accountId, postedDate])
+  @@index([categoryId, postedDate])
+  @@index([postedDate, amountCents])
+  @@index([isTransfer])
+  @@index([transferCandidate])
+}
+
+model CategoryRule {
+  id         String        @id @default(uuid())
+  accountId  String?
+  account    Account?      @relation(fields: [accountId], references: [id])
+  matchType  RuleMatchType @default(CONTAINS)
+  pattern    String
+  direction  Direction     @default(NONE)
+  categoryId String
+  category   Category      @relation(fields: [categoryId], references: [id])
+  priority   Int           @default(100)
+  enabled    Boolean       @default(true)
+  createdAt  DateTime      @default(now())
+
+  @@index([priority, enabled])
+}
+
+model AppSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}

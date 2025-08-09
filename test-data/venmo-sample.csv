@@ -1,0 +1,5 @@
+Datetime,Type,From,To,Amount (total),Amount (fee),Note,ID
+07/05/2025 10:22:00,Payment,,Alice,-45.00,0.00,Dinner,TXN1
+07/06/2025 08:15:00,Transfer,,Bank,-100.00,-0.25,Cashout,TXN2
+07/07/2025 14:30:00,Payment,Bob,,-25.50,0.00,Coffee,TXN3
+07/08/2025 19:45:00,Transfer,Bank,,75.00,-0.25,Deposit,TXN4
