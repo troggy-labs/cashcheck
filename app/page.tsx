@@ -66,7 +66,7 @@ export default function Dashboard() {
   const [pageData, setPageData] = useState<PageData | null>(null)
   const [transactions, setTransactions] = useState<TransactionsResponse | null>(null)
   const [loading, setLoading] = useState(true)
-  const [showTransactions, setShowTransactions] = useState(false)
+  const [showTransactions, setShowTransactions] = useState(true)
   const [showUploadModal, setShowUploadModal] = useState(false)
   
   // Transaction filters
@@ -136,15 +136,12 @@ export default function Dashboard() {
     } else {
       setFilters(prev => ({ ...prev, onlyCandidates: true, categoryId: '' }))
     }
-    setShowTransactions(true)
   }
   
   const handleUploadSuccess = () => {
     // Refresh page data after successful upload
     fetchPageData()
-    if (showTransactions) {
-      fetchTransactions()
-    }
+    fetchTransactions()
   }
   
   const navigateMonth = (direction: 'prev' | 'next') => {
@@ -177,14 +174,13 @@ export default function Dashboard() {
   
   useEffect(() => {
     fetchPageData()
+    fetchTransactions()
     setLoading(false)
   }, [currentMonth])
   
   useEffect(() => {
-    if (showTransactions) {
-      fetchTransactions()
-    }
-  }, [showTransactions, filters, currentMonth])
+    fetchTransactions()
+  }, [filters])
   
   if (loading || !pageData) {
     return (
@@ -202,12 +198,25 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <h1 className="text-2xl font-bold text-gray-900">FinClick</h1>
-              <input
-                type="month"
-                value={currentMonth}
-                onChange={(e) => setCurrentMonth(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => navigateMonth('prev')}
+                  className="p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded"
+                  title="Previous month"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+                <div className="px-3 py-2 text-lg font-semibold text-gray-900 min-w-[180px] text-center">
+                  {formatMonthDisplay(currentMonth)}
+                </div>
+                <button
+                  onClick={() => navigateMonth('next')}
+                  className="p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded"
+                  title="Next month"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
+              </div>
             </div>
             
             <div className="flex items-center space-x-2">
@@ -238,10 +247,9 @@ export default function Dashboard() {
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Dashboard Section */}
-        {!showTransactions && (
-          <>
-            {/* Tiles */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <>
+          {/* Tiles */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="bg-white p-6 rounded-lg shadow border border-green-200">
                 <div className="flex items-center">
                   <div className="p-2 bg-green-100 rounded-lg">
@@ -343,32 +351,13 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
-            
-            {/* View Transactions Button */}
-            <div className="mt-8 text-center">
-              <button
-                onClick={() => setShowTransactions(true)}
-                className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 inline-flex items-center"
-              >
-                <Filter className="h-4 w-4 mr-2" />
-                View Transactions
-              </button>
-            </div>
-          </>
-        )}
+        </>
         
         {/* Transactions Section */}
-        {showTransactions && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900">Transactions</h2>
-              <button
-                onClick={() => setShowTransactions(false)}
-                className="text-indigo-600 hover:text-indigo-700"
-              >
-                ← Back to Dashboard
-              </button>
-            </div>
+        <div className="space-y-6 mt-12">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold text-gray-900">Transactions</h2>
+          </div>
             
             {/* Filters */}
             <div className="bg-white p-6 rounded-lg shadow border">
@@ -535,8 +524,7 @@ export default function Dashboard() {
                 )}
               </div>
             )}
-          </div>
-        )}
+        </div>
       </div>
       
       {/* Upload Modal */}
