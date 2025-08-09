@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Upload, Settings, LogOut, Users, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react'
+import { Upload, Settings, LogOut, Users, ChevronLeft, ChevronRight, Trash2, ArrowUpRight, ArrowDownRight, PiggyBank } from 'lucide-react'
 import UploadModal from '@/components/UploadModal'
 import StatCard from '@/components/StatCard'
 
@@ -223,11 +223,11 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white/70 backdrop-blur-md border-b border-gray-200 shadow-sm">
+      <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-brand/10 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <h1 className="text-2xl font-semibold tracking-tight text-gray-900">FinClick</h1>
+              <h1 className="text-2xl font-bold tracking-tight text-brand">FinClick</h1>
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => navigateMonth('prev')}
@@ -284,16 +284,19 @@ export default function Dashboard() {
               title="Income"
               amount={formatCurrency(pageData.tiles.incomeCents)}
               color="green"
+              icon={ArrowUpRight}
             />
             <StatCard
               title="Expenses"
               amount={formatCurrency(pageData.tiles.expenseCents)}
               color="red"
+              icon={ArrowDownRight}
             />
             <StatCard
               title="Net"
               amount={formatCurrency(pageData.tiles.netCents)}
               color={pageData.tiles.netCents >= 0 ? 'green' : 'red'}
+              icon={PiggyBank}
             />
           </div>
 
@@ -319,7 +322,7 @@ export default function Dashboard() {
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* By Category */}
-              <div className="bg-white p-6 rounded-lg shadow border">
+              <div className="bg-white/70 backdrop-blur rounded-2xl shadow-sm border border-gray-100 animate-fadeIn">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Expenses by Category</h3>
                 <div className="space-y-3">
                   {pageData.byCategory.map((item) => (
@@ -335,7 +338,7 @@ export default function Dashboard() {
               </div>
               
               {/* By Account */}
-              <div className="bg-white p-6 rounded-lg shadow border">
+              <div className="bg-white/70 backdrop-blur rounded-2xl shadow-sm border border-gray-100 animate-fadeIn">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">By Account</h3>
                 <div className="space-y-4">
                   {pageData.byAccount.map((item) => (
@@ -373,7 +376,7 @@ export default function Dashboard() {
           </div>
             
             {/* Filters */}
-            <div className="bg-white p-6 rounded-lg shadow border">
+            <div className="bg-white/70 backdrop-blur rounded-2xl shadow-sm border border-gray-100 animate-fadeIn">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Filter Transactions</h3>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>

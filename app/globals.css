@@ -16,8 +16,12 @@
 
 body {
   color: var(--foreground);
-  background: linear-gradient(to bottom right, var(--background), #ffffff);
+  background: radial-gradient(circle at 25% 25%, #eef2ff, #ffffff);
   font-family: var(--font-geist-sans), sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 * {
