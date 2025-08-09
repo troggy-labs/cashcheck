@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Upload, Settings, LogOut, Users, Filter, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react'
+import { Upload, Settings, LogOut, Users, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react'
 import UploadModal from '@/components/UploadModal'
+import StatCard from '@/components/StatCard'
 
 interface PageData {
   tiles: {
@@ -65,7 +66,6 @@ export default function Dashboard() {
   const [pageData, setPageData] = useState<PageData | null>(null)
   const [transactions, setTransactions] = useState<TransactionsResponse | null>(null)
   const [loading, setLoading] = useState(true)
-  const [showTransactions, setShowTransactions] = useState(true)
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<{
     show: boolean
@@ -214,24 +214,24 @@ export default function Dashboard() {
   
   if (loading || !pageData) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-lg">Loading...</div>
       </div>
     )
   }
   
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="sticky top-0 z-10 bg-white/70 backdrop-blur-md border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <h1 className="text-2xl font-bold text-gray-900">FinClick</h1>
+              <h1 className="text-2xl font-semibold tracking-tight text-gray-900">FinClick</h1>
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => navigateMonth('prev')}
-                  className="p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded"
+                  className="p-1 text-gray-600 hover:text-gray-900 hover:bg-white/60 rounded transition-colors"
                   title="Previous month"
                 >
                   <ChevronLeft className="h-5 w-5" />
@@ -241,7 +241,7 @@ export default function Dashboard() {
                 </div>
                 <button
                   onClick={() => navigateMonth('next')}
-                  className="p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded"
+                  className="p-1 text-gray-600 hover:text-gray-900 hover:bg-white/60 rounded transition-colors"
                   title="Next month"
                 >
                   <ChevronRight className="h-5 w-5" />
@@ -252,20 +252,20 @@ export default function Dashboard() {
             <div className="flex items-center space-x-2">
               <button 
                 onClick={() => setShowUploadModal(true)}
-                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
+                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-white/60 rounded-lg transition-colors"
                 title="Upload CSV"
               >
                 <Upload className="h-5 w-5" />
               </button>
-              <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg">
+              <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-white/60 rounded-lg transition-colors">
                 <Users className="h-5 w-5" />
               </button>
-              <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg">
+              <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-white/60 rounded-lg transition-colors">
                 <Settings className="h-5 w-5" />
               </button>
               <button
                 onClick={handleLogout}
-                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
+                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-white/60 rounded-lg transition-colors"
                 title="Logout"
               >
                 <LogOut className="h-5 w-5" />
@@ -280,47 +280,23 @@ export default function Dashboard() {
         <>
           {/* Tiles */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-white p-6 rounded-lg shadow border border-green-200">
-                <div className="flex items-center">
-                  <div className="p-2 bg-green-100 rounded-lg">
-                    <div className="w-6 h-6 bg-green-600 rounded"></div>
-                  </div>
-                  <div className="ml-4 flex-1">
-                    <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Income</h3>
-                    <p className="text-3xl font-bold text-green-700">
-                      {formatCurrency(pageData.tiles.incomeCents)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow border border-red-200">
-                <div className="flex items-center">
-                  <div className="p-2 bg-red-100 rounded-lg">
-                    <div className="w-6 h-6 bg-red-600 rounded"></div>
-                  </div>
-                  <div className="ml-4 flex-1">
-                    <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Expenses</h3>
-                    <p className="text-3xl font-bold text-red-700">
-                      {formatCurrency(pageData.tiles.expenseCents)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className={`bg-white p-6 rounded-lg shadow border ${pageData.tiles.netCents >= 0 ? 'border-green-200' : 'border-red-200'}`}>
-                <div className="flex items-center">
-                  <div className={`p-2 rounded-lg ${pageData.tiles.netCents >= 0 ? 'bg-green-100' : 'bg-red-100'}`}>
-                    <div className={`w-6 h-6 rounded ${pageData.tiles.netCents >= 0 ? 'bg-green-600' : 'bg-red-600'}`}></div>
-                  </div>
-                  <div className="ml-4 flex-1">
-                    <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Net</h3>
-                    <p className={`text-3xl font-bold ${pageData.tiles.netCents >= 0 ? 'text-green-700' : 'text-red-700'}`}>
-                      {formatCurrency(pageData.tiles.netCents)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
+            <StatCard
+              title="Income"
+              amount={formatCurrency(pageData.tiles.incomeCents)}
+              color="green"
+            />
+            <StatCard
+              title="Expenses"
+              amount={formatCurrency(pageData.tiles.expenseCents)}
+              color="red"
+            />
+            <StatCard
+              title="Net"
+              amount={formatCurrency(pageData.tiles.netCents)}
+              color={pageData.tiles.netCents >= 0 ? 'green' : 'red'}
+            />
+          </div>
+
             {/* Badges */}
             <div className="flex space-x-4 mb-8">
               {pageData.counters.uncategorized > 0 && (
