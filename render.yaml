@@ -2,6 +2,7 @@ services:
   - type: web
     name: finclick
     env: node
+    plan: free
     buildCommand: npm ci && npm run build
     startCommand: npm start
     envVars:
@@ -20,3 +21,4 @@ databases:
   - name: finclick-db
     databaseName: finclick
     user: finclick
+    plan: free
