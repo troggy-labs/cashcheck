@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { Upload, Settings, LogOut, Users, Filter, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react'
 import UploadModal from '@/components/UploadModal'
 
@@ -57,7 +57,6 @@ interface TransactionsResponse {
 
 export default function Dashboard() {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const [currentMonth, setCurrentMonth] = useState(() => {
     const today = new Date()
     return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`
