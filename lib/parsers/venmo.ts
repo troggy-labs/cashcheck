@@ -29,12 +29,17 @@ export function parseVenmoRow(
   const feeAmountStr = row["Amount (fee)"] || "0"
   
   // Skip rows that don't have core transaction data (header rows, summary rows, etc.)
-  if (!externalId || !dateTimeStr || !totalAmountStr || !type || totalAmountStr === "0") {
+  if (!externalId || !dateTimeStr || !totalAmountStr || !type) {
     return []
   }
   
-  // Skip incomplete transactions
-  if (status && status !== "Complete") {
+  // Skip transactions with zero amounts (summary rows)
+  if (totalAmountStr.trim() === "" || totalAmountStr === "0" || totalAmountStr === "$0.00") {
+    return []
+  }
+  
+  // Accept both "Complete" and "Issued" transactions (transfers can be "Issued")
+  if (status && !["Complete", "Issued"].includes(status)) {
     return []
   }
   
