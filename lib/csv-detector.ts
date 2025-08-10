@@ -45,8 +45,9 @@ export function detectCSVFormat(csvString: string): Promise<CSVDetectionResult> 
       parseString(csvData, { 
         headers: true, 
         maxRows: 1,
-        skipLinesWithError: true,
-        strictColumnHandling: false 
+        ignoreEmpty: true,
+        trim: true,
+        skipEmptyLines: true
       })
         .on('data', (firstRow: Record<string, string>) => {
           console.log(`Detection attempt ${attemptIndex + 1} got data:`, Object.keys(firstRow))
@@ -199,8 +200,9 @@ export function validateDetectedFormat(provider: Provider, csvString: string): P
       parseString(csvString, { 
         headers: true, 
         maxRows: 1,
-        skipLinesWithError: true,
-        strictColumnHandling: false 
+        ignoreEmpty: true,
+        trim: true,
+        skipEmptyLines: true
       })
         .on('data', (firstRow: Record<string, string>) => {
           console.log('Chase validation got data:', Object.keys(firstRow))
@@ -223,8 +225,9 @@ export function validateDetectedFormat(provider: Provider, csvString: string): P
       parseString(venmoData, { 
         headers: true, 
         maxRows: 1,
-        skipLinesWithError: true,
-        strictColumnHandling: false 
+        ignoreEmpty: true,
+        trim: true,
+        skipEmptyLines: true
       })
         .on('data', (firstRow: Record<string, string>) => {
           resolve(validateVenmoHeaders(firstRow))
