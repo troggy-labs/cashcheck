@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Prisma } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -33,10 +33,10 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ message: 'Transaction deleted successfully' })
     }
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Delete transaction error:', error)
-    
-    if (error.code === 'P2025') {
+
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
       return NextResponse.json(
         { error: 'Transaction not found' },
         { status: 404 }
@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
     const [year, monthNum] = month.split('-').map(Number)
     
     // Build where clause - proper date range for the specified month
-    const where: any = {
+    const where: Prisma.TransactionWhereInput = {
       postedDate: {
         gte: new Date(year, monthNum - 1, 1), // Start of month (monthNum-1 because JS months are 0-indexed)
         lt: new Date(year, monthNum, 1) // Start of next month

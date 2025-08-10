@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient, Direction, RuleMatchType } from '@prisma/client'
+import { PrismaClient, Prisma } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -10,8 +10,8 @@ export async function PATCH(
   try {
     const { id } = params
     const body = await request.json()
-    
-    const updateData: any = {}
+
+    const updateData: Prisma.CategoryRuleUncheckedUpdateInput = {}
     
     if ('pattern' in body) updateData.pattern = body.pattern
     if ('matchType' in body) updateData.matchType = body.matchType

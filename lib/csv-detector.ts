@@ -13,7 +13,7 @@ export interface CSVDetectionResult {
  * Returns the provider and confidence level
  */
 export function detectCSVFormat(csvString: string): Promise<CSVDetectionResult> {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     // Try parsing with different skip values for multi-header files like Venmo
     const attempts = [
       { skipRows: 0, description: 'standard format' },

@@ -1,4 +1,4 @@
-import { PrismaClient, CategoryRule, Category, Direction, RuleMatchType, CategoryKind } from '@prisma/client'
+import { PrismaClient, CategoryRule, Direction, RuleMatchType, CategoryKind } from '@prisma/client'
 import { ParsedTransaction } from './parsers/chase'
 
 const prisma = new PrismaClient()

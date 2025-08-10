@@ -1,5 +1,4 @@
 import jwt from 'jsonwebtoken'
-import bcrypt from 'bcryptjs'
 import { cookies } from 'next/headers'
 import { NextRequest } from 'next/server'
 
@@ -29,7 +28,7 @@ export function createSessionToken(): string {
 export function verifySessionToken(token: string): SessionData | null {
   try {
     return jwt.verify(token, SESSION_SECRET) as SessionData
-  } catch (error) {
+  } catch {
     return null
   }
 }

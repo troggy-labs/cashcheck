@@ -49,10 +49,18 @@ export default function RulesModal({
   const [editingRule, setEditingRule] = useState<Rule | null>(null)
   
   // Form state
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    pattern: string
+    matchType: Rule['matchType']
+    direction: Rule['direction']
+    categoryId: string
+    accountId: string
+    priority: number
+    enabled: boolean
+  }>({
     pattern: '',
-    matchType: 'CONTAINS' as const,
-    direction: 'NONE' as const,
+    matchType: 'CONTAINS',
+    direction: 'NONE',
     categoryId: '',
     accountId: '',
     priority: 100,
@@ -109,8 +117,8 @@ export default function RulesModal({
     setEditingRule(rule)
     setFormData({
       pattern: rule.pattern,
-      matchType: rule.matchType as 'CONTAINS' | 'REGEX',
-      direction: rule.direction as 'INFLOW' | 'OUTFLOW' | 'NONE',
+      matchType: rule.matchType,
+      direction: rule.direction,
       categoryId: rule.categoryId,
       accountId: rule.accountId || '',
       priority: rule.priority,
@@ -213,7 +221,12 @@ export default function RulesModal({
                     </label>
                     <select
                       value={formData.matchType}
-                      onChange={(e) => setFormData(prev => ({ ...prev, matchType: e.target.value as any }))}
+                      onChange={(e) =>
+                        setFormData(prev => ({
+                          ...prev,
+                          matchType: e.target.value as Rule['matchType']
+                        }))
+                      }
                       className="w-full border border-brand-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all duration-200"
                     >
                       <option value="CONTAINS">Contains</option>
@@ -246,7 +259,12 @@ export default function RulesModal({
                     </label>
                     <select
                       value={formData.direction}
-                      onChange={(e) => setFormData(prev => ({ ...prev, direction: e.target.value as any }))}
+                      onChange={(e) =>
+                        setFormData(prev => ({
+                          ...prev,
+                          direction: e.target.value as Rule['direction']
+                        }))
+                      }
                       className="w-full border border-brand-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all duration-200"
                     >
                       <option value="NONE">Any Amount</option>
