@@ -42,7 +42,12 @@ export function detectCSVFormat(csvString: string): Promise<CSVDetectionResult> 
         csvData = lines.slice(attempt.skipRows).join('\n')
       }
       
-      parseString(csvData, { headers: true, maxRows: 1 })
+      parseString(csvData, { 
+        headers: true, 
+        maxRows: 1,
+        skipLinesWithError: true,
+        strictColumnHandling: false 
+      })
         .on('data', (firstRow: Record<string, string>) => {
           console.log(`Detection attempt ${attemptIndex + 1} got data:`, Object.keys(firstRow))
           const result = detectCSVFormatFromRow(firstRow)
@@ -191,7 +196,12 @@ export function validateDetectedFormat(provider: Provider, csvString: string): P
     if (provider === Provider.CHASE) {
       // For Chase, parse normally
       console.log('Validating CHASE format, CSV length:', csvString.length)
-      parseString(csvString, { headers: true, maxRows: 1 })
+      parseString(csvString, { 
+        headers: true, 
+        maxRows: 1,
+        skipLinesWithError: true,
+        strictColumnHandling: false 
+      })
         .on('data', (firstRow: Record<string, string>) => {
           console.log('Chase validation got data:', Object.keys(firstRow))
           const result = validateChaseHeaders(firstRow)
@@ -210,7 +220,12 @@ export function validateDetectedFormat(provider: Provider, csvString: string): P
       // For Venmo, skip first 2 rows
       const lines = csvString.split('\n')
       const venmoData = lines.slice(2).join('\n')
-      parseString(venmoData, { headers: true, maxRows: 1 })
+      parseString(venmoData, { 
+        headers: true, 
+        maxRows: 1,
+        skipLinesWithError: true,
+        strictColumnHandling: false 
+      })
         .on('data', (firstRow: Record<string, string>) => {
           resolve(validateVenmoHeaders(firstRow))
         })
