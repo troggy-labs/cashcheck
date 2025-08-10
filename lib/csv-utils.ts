@@ -1,4 +1,5 @@
 import crypto from 'crypto'
+import Currency from 'currency.js'
 
 export const normalizeHeader = (s: string): string => 
   s.toLowerCase().replace(/[^a-z0-9]/g, "")
@@ -17,8 +18,14 @@ export function pickHeader(row: Record<string, string>, candidates: string[]): s
 
 export function toCents(s: string | undefined): number {
   if (!s) return 0
-  const n = Number(String(s).replace(/,/g, ""))
-  return Math.round(n * 100)
+  try {
+    // Use currency.js to parse various currency formats
+    // Handles: "$300.00", "- $300.00", "+ $300.00", "-47.57", "3000.00", etc.
+    return Currency(s).intValue
+  } catch (error) {
+    console.warn(`Failed to parse currency: "${s}"`, error)
+    return 0
+  }
 }
 
 export function normalizeDesc(s: string): string {

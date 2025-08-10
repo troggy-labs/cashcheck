@@ -26,6 +26,7 @@
     "@types/react-dom": "^18",
     "@types/uuid": "^10.0.0",
     "bcryptjs": "^3.0.2",
+    "currency.js": "^2.0.4",
     "fast-csv": "^5.0.5",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.539.0",
