@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Upload, Settings, LogOut, Users, ChevronLeft, ChevronRight, Trash2, ArrowUpRight, ArrowDownRight, PiggyBank } from 'lucide-react'
 import UploadModal from '@/components/UploadModal'
 import StatCard from '@/components/StatCard'
+import RulesModal from '@/components/RulesModal'
 
 interface PageData {
   tiles: {
@@ -67,6 +68,7 @@ export default function Dashboard() {
   const [transactions, setTransactions] = useState<TransactionsResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [showUploadModal, setShowUploadModal] = useState(false)
+  const [showRulesModal, setShowRulesModal] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<{
     show: boolean
     transactionId?: string
@@ -305,7 +307,11 @@ export default function Dashboard() {
               <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-white/60 rounded-lg transition-colors">
                 <Users className="h-5 w-5" />
               </button>
-              <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-white/60 rounded-lg transition-colors">
+              <button 
+                onClick={() => setShowRulesModal(true)}
+                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-white/60 rounded-lg transition-colors"
+                title="Manage Rules"
+              >
                 <Settings className="h-5 w-5" />
               </button>
               <button
@@ -687,6 +693,19 @@ export default function Dashboard() {
         isOpen={showUploadModal}
         onClose={() => setShowUploadModal(false)}
         onSuccess={handleUploadSuccess}
+      />
+      
+      {/* Rules Modal */}
+      <RulesModal
+        isOpen={showRulesModal}
+        onClose={() => setShowRulesModal(false)}
+        categories={pageData?.categories || []}
+        accounts={pageData?.accounts || []}
+        onRuleChange={() => {
+          // Refresh page data when rules change
+          fetchPageData()
+          fetchTransactions()
+        }}
       />
     </div>
   )
