@@ -17,18 +17,25 @@ export function parseVenmoRow(
   accountId: string, 
   timezone: string = 'America/Los_Angeles'
 ): VenmoTransaction[] {
-  // Venmo CSV headers: Datetime, Type, From, To, Amount (total), Amount (fee), Note, ID
+  // Venmo CSV headers: ID, Datetime, Type, Status, Note, From, To, Amount (total), Amount (tip), Amount (tax), Amount (fee), ...
+  const externalId = row["ID"] || null
   const dateTimeStr = row["Datetime"]
   const type = row["Type"] || ""
+  const status = row["Status"] || ""
+  const note = row["Note"] || ""
   const from = row["From"] || ""
   const to = row["To"] || ""
   const totalAmountStr = row["Amount (total)"] || "0"
   const feeAmountStr = row["Amount (fee)"] || "0"
-  const note = row["Note"] || ""
-  const externalId = row["ID"] || null
   
-  if (!dateTimeStr || !totalAmountStr) {
-    throw new Error(`Missing required fields in Venmo CSV row: ${JSON.stringify(row)}`)
+  // Skip rows that don't have core transaction data (header rows, summary rows, etc.)
+  if (!externalId || !dateTimeStr || !totalAmountStr || !type || totalAmountStr === "0") {
+    return []
+  }
+  
+  // Skip incomplete transactions
+  if (status && status !== "Complete") {
+    return []
   }
   
   // Parse datetime

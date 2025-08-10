@@ -26,28 +26,44 @@ export function parseChaseRow(
   accountId: string, 
   timezone: string = 'America/Los_Angeles'
 ): ParsedTransaction {
-  // Extract fields using header normalization
-  const postDateStr = pickHeader(row, ["Post Date", "Posting Date"])
+  // Extract fields using header normalization - prefer Post Date, fallback to Transaction Date
+  const dateStr = pickHeader(row, ["Post Date", "Posting Date", "Transaction Date"])
   const description = pickHeader(row, ["Description"])
   const amountStr = pickHeader(row, ["Amount"])
   
-  if (!postDateStr || !description || !amountStr) {
+  if (!dateStr || !description || !amountStr) {
     throw new Error(`Missing required fields in Chase CSV row: ${JSON.stringify(row)}`)
   }
   
+  // Build enhanced description with category and type if available (credit card format)
+  const category = pickHeader(row, ["Category"])
+  const type = pickHeader(row, ["Type"]) 
+  const memo = pickHeader(row, ["Memo"])
+  
+  let enhancedDescription = description
+  if (category && category !== description) {
+    enhancedDescription += ` [${category}]`
+  }
+  if (type && type !== 'Sale') { // Only add type if it's not the default 'Sale'
+    enhancedDescription += ` (${type})`
+  }
+  if (memo && memo.trim()) {
+    enhancedDescription += ` - ${memo}`
+  }
+  
   // Parse date and amount
-  const postedAt = parseUsDate(postDateStr, timezone)
+  const postedAt = parseUsDate(dateStr, timezone)
   const postedDate = toDateOnly(postedAt, timezone)
   const amountCents = toCents(amountStr) // Sign preserved from CSV
-  const descriptionNorm = normalizeDesc(description)
+  const descriptionNorm = normalizeDesc(enhancedDescription)
   
-  // Create unique hash
+  // Create unique hash using enhanced description
   const hashUnique = createHashUnique(
     Provider.CHASE,
     accountId,
     postedDate,
     amountCents,
-    description,
+    enhancedDescription,
     null // Chase doesn't have external IDs
   )
   
@@ -57,7 +73,7 @@ export function parseChaseRow(
     accountId,
     postedAt,
     postedDate,
-    descriptionRaw: description,
+    descriptionRaw: enhancedDescription,
     descriptionNorm,
     amountCents,
     currency: 'USD',

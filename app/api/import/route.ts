@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient, Provider, FileStatus } from '@prisma/client'
 import crypto from 'crypto'
+import { parseString } from 'fast-csv'
 import { parseChaseRow } from '@/lib/parsers/chase'
 import { parseVenmoRow } from '@/lib/parsers/venmo'
 import { categorizeBatch } from '@/lib/categorization'
@@ -79,38 +80,54 @@ export async function POST(request: NextRequest) {
       })
       const timezone = timezoneSetting?.value || 'America/Los_Angeles'
       
-      // Parse CSV using simple string parsing (more reliable)
+      // Parse CSV using fast-csv for proper parsing
       const csvString = fileBuffer.toString('utf-8')
-      const lines = csvString.split('\n').filter(line => line.trim())
       
-      if (lines.length < 2) {
-        throw new Error('CSV file must have at least a header row and one data row')
-      }
-      
-      const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim())
-      const rows: any[] = []
-      
-      for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split(',').map(v => v.replace(/"/g, '').trim())
-        if (values.length === headers.length) {
-          const row: any = {}
-          headers.forEach((header, index) => {
-            row[header] = values[index]
+      const rows: Record<string, string>[] = await new Promise((resolve, reject) => {
+        const parsedRows: Record<string, string>[] = []
+        
+        parseString(csvString, { headers: true, ignoreEmpty: true })
+          .on('data', row => {
+            // For Venmo, skip header rows that don't contain transaction data
+            if (source === 'VENMO') {
+              // Skip rows that are clearly header/summary rows
+              if (row['Account Statement - (@Colleen-Javier)'] || row['Account Activity'] || row['Cryptocurrency summary']) {
+                return
+              }
+            }
+            parsedRows.push(row)
           })
-          rows.push(row)
-        }
+          .on('end', () => {
+            resolve(parsedRows)
+          })
+          .on('error', (error) => {
+            reject(error)
+          })
+      })
+      
+      if (rows.length === 0) {
+        throw new Error('CSV file contains no valid transaction data')
       }
       
       // Parse transactions based on source
-      let parsedTransactions: any[] = []
+      let parsedTransactions: (ReturnType<typeof parseChaseRow> | ReturnType<typeof parseVenmoRow>[number])[] = []
       
-      if (source === 'CHASE') {
-        parsedTransactions = rows.map(row => parseChaseRow(row, account.id, timezone))
-      } else if (source === 'VENMO') {
-        for (const row of rows) {
-          const venmoTxs = parseVenmoRow(row, account.id, timezone)
-          parsedTransactions.push(...venmoTxs)
+      try {
+        if (source === 'CHASE') {
+          parsedTransactions = rows.map(row => parseChaseRow(row, account.id, timezone))
+        } else if (source === 'VENMO') {
+          for (const row of rows) {
+            const venmoTxs = parseVenmoRow(row, account.id, timezone)
+            parsedTransactions.push(...venmoTxs)
+          }
         }
+        
+        if (parsedTransactions.length === 0) {
+          throw new Error(`No valid transactions found in ${source} CSV. Please check the file format and ensure it contains transaction data.`)
+        }
+      } catch (parseError) {
+        console.error('Transaction parsing error:', parseError)
+        throw new Error(`Failed to parse ${source} transactions: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`)
       }
       
       // Categorize transactions
@@ -139,8 +156,8 @@ export async function POST(request: NextRequest) {
             }
           })
           imported++
-        } catch (error: any) {
-          if (error.code === 'P2002' && error.meta?.target?.includes('hashUnique')) {
+        } catch (error: unknown) {
+          if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002' && 'meta' in error && error.meta && typeof error.meta === 'object' && 'target' in error.meta && Array.isArray(error.meta.target) && error.meta.target.includes('hashUnique')) {
             duplicates++
           } else {
             throw error
