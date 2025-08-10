@@ -1,4 +1,4 @@
-import { PrismaClient, Provider, Transaction } from '@prisma/client'
+import { PrismaClient, Provider } from '@prisma/client'
 import { v4 as uuidv4 } from 'uuid'
 
 const prisma = new PrismaClient()
