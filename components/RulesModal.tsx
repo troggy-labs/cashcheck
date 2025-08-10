@@ -285,7 +285,7 @@ export default function RulesModal({
                       min="1"
                       max="1000"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Lower numbers = higher priority</p>
+                    <p className="text-xs text-brand-500 mt-1">Lower numbers = higher priority</p>
                   </div>
                 </div>
                 
@@ -294,9 +294,9 @@ export default function RulesModal({
                     type="checkbox"
                     checked={formData.enabled}
                     onChange={(e) => setFormData(prev => ({ ...prev, enabled: e.target.checked }))}
-                    className="mr-2 text-blue-600 focus:ring-blue-500"
+                    className="mr-2 text-accent-600 focus:ring-accent-500"
                   />
-                  <span className="text-sm text-gray-700">Enabled</span>
+                  <span className="text-sm text-brand-700">Enabled</span>
                 </div>
                 
                 <div className="flex justify-end space-x-3 mt-6">
@@ -332,57 +332,57 @@ export default function RulesModal({
             ) : (
               <div className="overflow-x-auto">
                 <table className="min-w-full">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-brand-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-brand-500 uppercase tracking-wider">
                         Priority
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-brand-500 uppercase tracking-wider">
                         Pattern
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-brand-500 uppercase tracking-wider">
                         Category
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-brand-500 uppercase tracking-wider">
                         Account
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-brand-500 uppercase tracking-wider">
                         Direction
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-brand-500 uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-brand-500 uppercase tracking-wider">
                         Actions
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-brand-200">
                     {rules.map((rule) => (
                       <tr key={rule.id} className={rule.enabled ? '' : 'opacity-50'}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-brand-900">
                           {rule.priority}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-brand-900">
                           <div>
                             <span className="font-medium">{rule.pattern}</span>
-                            <div className="text-xs text-gray-500">({rule.matchType})</div>
+                            <div className="text-xs text-brand-500">({rule.matchType})</div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-brand-900">
                           {rule.categoryName}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-brand-500">
                           {rule.accountName || 'Any'}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-brand-500">
                           {rule.direction === 'INFLOW' ? 'Positive' : rule.direction === 'OUTFLOW' ? 'Negative' : 'Any'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                             rule.enabled 
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-gray-100 text-gray-800'
+                              ? 'bg-success-100 text-success-800'
+                              : 'bg-brand-100 text-brand-800'
                           }`}>
                             {rule.enabled ? 'Enabled' : 'Disabled'}
                           </span>
@@ -390,13 +390,13 @@ export default function RulesModal({
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                           <button
                             onClick={() => handleEdit(rule)}
-                            className="text-blue-600 hover:text-blue-900"
+                            className="text-accent-600 hover:text-accent-900"
                           >
                             <Edit className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => handleDelete(rule.id)}
-                            className="text-red-600 hover:text-red-900"
+                            className="text-danger-600 hover:text-danger-900"
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
