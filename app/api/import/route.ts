@@ -35,28 +35,14 @@ export async function POST(request: NextRequest) {
     let confidence: number
     
     try {
-      // Get first row to detect format
-      const firstRow: Record<string, string> = await new Promise((resolve, reject) => {
-        parseString(csvString, { headers: true, maxRows: 1 })
-          .on('data', row => resolve(row))
-          .on('error', reject)
-          .on('end', () => resolve({}))
-      })
-      
-      if (Object.keys(firstRow).length === 0) {
-        return NextResponse.json(
-          { error: 'CSV file appears to be empty or malformed' },
-          { status: 400 }
-        )
-      }
-      
-      // Detect CSV format
-      const detection = detectCSVFormat(firstRow)
+      // Detect CSV format using the new async function
+      const detection = await detectCSVFormat(csvString)
       detectedProvider = detection.provider
       confidence = detection.confidence
       
       // Validate that we can parse this format
-      if (!validateDetectedFormat(detectedProvider, firstRow)) {
+      const isValid = await validateDetectedFormat(detectedProvider, csvString)
+      if (!isValid) {
         return NextResponse.json(
           { error: `Unable to detect valid CSV format. Expected ${detectedProvider} headers but validation failed.` },
           { status: 400 }

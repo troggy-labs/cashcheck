@@ -1,5 +1,6 @@
 import { Provider } from '@prisma/client'
 import { normalizeHeader } from './csv-utils'
+import { parseString } from 'fast-csv'
 
 export interface CSVDetectionResult {
   provider: Provider
@@ -8,10 +9,64 @@ export interface CSVDetectionResult {
 }
 
 /**
- * Detects CSV format based on headers
+ * Detects CSV format from CSV string by trying multiple header positions
  * Returns the provider and confidence level
  */
-export function detectCSVFormat(firstRow: Record<string, string>): CSVDetectionResult {
+export function detectCSVFormat(csvString: string): Promise<CSVDetectionResult> {
+  return new Promise((resolve, reject) => {
+    // Try parsing with different skip values for multi-header files like Venmo
+    const attempts = [
+      { skipRows: 0, description: 'standard format' },
+      { skipRows: 2, description: 'Venmo format (skip first 2 rows)' }
+    ]
+    
+    tryNextAttempt(0)
+    
+    function tryNextAttempt(attemptIndex: number): void {
+      if (attemptIndex >= attempts.length) {
+        // All attempts failed, return default
+        resolve({
+          provider: Provider.CHASE,
+          confidence: 0.3,
+          detectedHeaders: []
+        })
+        return
+      }
+      
+      const attempt = attempts[attemptIndex]
+      let csvData = csvString
+      
+      // Skip rows if needed
+      if (attempt.skipRows > 0) {
+        const lines = csvString.split('\n')
+        csvData = lines.slice(attempt.skipRows).join('\n')
+      }
+      
+      parseString(csvData, { headers: true, maxRows: 1 })
+        .on('data', (firstRow: Record<string, string>) => {
+          const result = detectCSVFormatFromRow(firstRow)
+          if (result.confidence > 0.6) {
+            resolve(result)
+          } else {
+            tryNextAttempt(attemptIndex + 1)
+          }
+        })
+        .on('error', () => {
+          tryNextAttempt(attemptIndex + 1)
+        })
+        .on('end', () => {
+          // No data received, try next
+          tryNextAttempt(attemptIndex + 1)
+        })
+    }
+  })
+}
+
+/**
+ * Detects CSV format based on a parsed first row
+ * Returns the provider and confidence level
+ */
+export function detectCSVFormatFromRow(firstRow: Record<string, string>): CSVDetectionResult {
   const headers = Object.keys(firstRow).map(h => h.trim())
   const normalizedHeaders = headers.map(normalizeHeader)
   
@@ -129,13 +184,30 @@ function calculateVenmoScore(normalizedHeaders: string[]): number {
 /**
  * Validates that detected format has required headers for parsing
  */
-export function validateDetectedFormat(provider: Provider, firstRow: Record<string, string>): boolean {
-  if (provider === Provider.CHASE) {
-    return validateChaseHeaders(firstRow)
-  } else if (provider === Provider.VENMO) {
-    return validateVenmoHeaders(firstRow)
-  }
-  return false
+export function validateDetectedFormat(provider: Provider, csvString: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (provider === Provider.CHASE) {
+      // For Chase, parse normally
+      parseString(csvString, { headers: true, maxRows: 1 })
+        .on('data', (firstRow: Record<string, string>) => {
+          resolve(validateChaseHeaders(firstRow))
+        })
+        .on('error', () => resolve(false))
+        .on('end', () => resolve(false))
+    } else if (provider === Provider.VENMO) {
+      // For Venmo, skip first 2 rows
+      const lines = csvString.split('\\n')
+      const venmoData = lines.slice(2).join('\\n')
+      parseString(venmoData, { headers: true, maxRows: 1 })
+        .on('data', (firstRow: Record<string, string>) => {
+          resolve(validateVenmoHeaders(firstRow))
+        })
+        .on('error', () => resolve(false))
+        .on('end', () => resolve(false))
+    } else {
+      resolve(false)
+    }
+  })
 }
 
 function validateChaseHeaders(row: Record<string, string>): boolean {
