@@ -196,8 +196,8 @@ export function validateDetectedFormat(provider: Provider, csvString: string): P
         .on('end', () => resolve(false))
     } else if (provider === Provider.VENMO) {
       // For Venmo, skip first 2 rows
-      const lines = csvString.split('\\n')
-      const venmoData = lines.slice(2).join('\\n')
+      const lines = csvString.split('\n')
+      const venmoData = lines.slice(2).join('\n')
       parseString(venmoData, { headers: true, maxRows: 1 })
         .on('data', (firstRow: Record<string, string>) => {
           resolve(validateVenmoHeaders(firstRow))
