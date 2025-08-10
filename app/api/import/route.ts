@@ -102,23 +102,43 @@ export async function POST(request: NextRequest) {
       const rows: Record<string, string>[] = await new Promise((resolve, reject) => {
         const parsedRows: Record<string, string>[] = []
         
-        parseString(csvString, { headers: true, ignoreEmpty: true })
-          .on('data', row => {
-            // For Venmo, skip header rows that don't contain transaction data
-            if (source === 'VENMO') {
-              // Skip rows that are clearly header/summary rows
-              if (row['Account Statement - (@Colleen-Javier)'] || row['Account Activity'] || row['Cryptocurrency summary']) {
+        if (source === 'VENMO') {
+          // For Venmo, skip the first 2 header rows and start parsing from row 3
+          const lines = csvString.split('\n')
+          const venmoDataLines = lines.slice(2) // Skip first 2 rows
+          const venmoCSV = venmoDataLines.join('\n')
+          
+          parseString(venmoCSV, { headers: true, ignoreEmpty: true })
+            .on('data', row => {
+              // Skip summary/footer rows
+              if (row[''] && (row[''].includes('Cryptocurrency summary') || row[''].includes('In case of errors'))) {
                 return
               }
-            }
-            parsedRows.push(row)
-          })
-          .on('end', () => {
-            resolve(parsedRows)
-          })
-          .on('error', (error) => {
-            reject(error)
-          })
+              // Skip rows with no ID or no amount data (empty summary rows)
+              if (!row['ID'] || !row['Amount (total)'] || row['Amount (total)'].trim() === '') {
+                return
+              }
+              parsedRows.push(row)
+            })
+            .on('end', () => {
+              resolve(parsedRows)
+            })
+            .on('error', (error) => {
+              reject(error)
+            })
+        } else {
+          // For Chase and other formats, parse normally
+          parseString(csvString, { headers: true, ignoreEmpty: true })
+            .on('data', row => {
+              parsedRows.push(row)
+            })
+            .on('end', () => {
+              resolve(parsedRows)
+            })
+            .on('error', (error) => {
+              reject(error)
+            })
+        }
       })
       
       if (rows.length === 0) {
