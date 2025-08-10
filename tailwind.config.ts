@@ -11,7 +11,20 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        brand: {
+          DEFAULT: '#4f46e5',
+          light: '#eef2ff'
+        }
       },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0', transform: 'translateY(0.25rem)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' }
+        }
+      },
+      animation: {
+        fadeIn: 'fadeIn 0.5s ease forwards'
+      }
     },
   },
   plugins: [],
