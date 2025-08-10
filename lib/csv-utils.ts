@@ -38,6 +38,7 @@ export function normalizeDesc(s: string): string {
 }
 
 export function parseUsDate(dateStr: string, timezone: string = 'America/Los_Angeles'): Date {
+  void timezone
   // Parse MM/DD/YYYY format
   const [month, day, year] = dateStr.split('/').map(Number)
   if (!month || !day || !year) {
@@ -49,6 +50,7 @@ export function parseUsDate(dateStr: string, timezone: string = 'America/Los_Ang
 }
 
 export function parseDateTime(dateTimeStr: string, timezone: string = 'America/Los_Angeles'): Date {
+  void timezone
   // Parse formats like "07/05/2025 10:22:00"
   const date = new Date(dateTimeStr)
   if (isNaN(date.getTime())) {
@@ -58,6 +60,7 @@ export function parseDateTime(dateTimeStr: string, timezone: string = 'America/L
 }
 
 export function toDateOnly(date: Date, timezone: string = 'America/Los_Angeles'): Date {
+  void timezone
   // Return a date with time set to start of day
   return new Date(date.getFullYear(), date.getMonth(), date.getDate())
 }

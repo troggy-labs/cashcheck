@@ -30,7 +30,7 @@ export async function DELETE(request: NextRequest) {
       message: `Deleted ${result.count} transactions` 
     })
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Bulk delete transaction error:', error)
     
     return NextResponse.json(
