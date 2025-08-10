@@ -3,13 +3,13 @@ import { LucideIcon } from 'lucide-react'
 interface StatCardProps {
   title: string
   amount: string
-  color: 'green' | 'red'
+  color: 'success' | 'danger'
   icon: LucideIcon
   className?: string
 }
 
 const colorStyles = {
-  green: {
+  success: {
     gradient: 'from-success-50 to-success-100/50',
     border: 'border-success-200/60',
     iconBg: 'bg-success-100',
@@ -17,7 +17,7 @@ const colorStyles = {
     text: 'text-success-700',
     shadow: 'shadow-success-200/20'
   },
-  red: {
+  danger: {
     gradient: 'from-danger-50 to-danger-100/50',
     border: 'border-danger-200/60',
     iconBg: 'bg-danger-100',

@@ -334,19 +334,19 @@ export default function Dashboard() {
             <StatCard
               title="Income"
               amount={formatCurrency(pageData.tiles.incomeCents)}
-              color="green"
+              color="success"
               icon={ArrowUpRight}
             />
             <StatCard
               title="Expenses"
               amount={formatCurrency(pageData.tiles.expenseCents)}
-              color="red"
+              color="danger"
               icon={ArrowDownRight}
             />
             <StatCard
               title="Net"
               amount={formatCurrency(pageData.tiles.netCents)}
-              color={pageData.tiles.netCents >= 0 ? 'green' : 'red'}
+              color={pageData.tiles.netCents >= 0 ? 'success' : 'danger'}
               icon={PiggyBank}
             />
           </section>
@@ -416,7 +416,7 @@ export default function Dashboard() {
         {/* Transactions Section */}
         <div className="space-y-6 mt-12">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-900">Transactions</h2>
+            <h2 className="text-xl font-bold text-brand-900">Transactions</h2>
             <div className="flex items-center space-x-3">
               {selectedTransactions.size > 0 && (
                 <button
@@ -424,7 +424,7 @@ export default function Dashboard() {
                     show: true, 
                     selectedIds: Array.from(selectedTransactions) 
                   })}
-                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 inline-flex items-center text-sm"
+                  className="bg-danger-600 text-white px-4 py-2 rounded-md hover:bg-danger-700 inline-flex items-center text-sm"
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
                   Delete Selected ({selectedTransactions.size})
@@ -432,7 +432,7 @@ export default function Dashboard() {
               )}
               <button
                 onClick={() => setDeleteConfirm({ show: true, deleteAll: true })}
-                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 inline-flex items-center text-sm"
+                className="bg-danger-600 text-white px-4 py-2 rounded-md hover:bg-danger-700 inline-flex items-center text-sm"
               >
                 <Trash2 className="h-4 w-4 mr-2" />
                 Clear All
@@ -441,15 +441,15 @@ export default function Dashboard() {
           </div>
             
             {/* Filters */}
-            <div className="bg-white/70 backdrop-blur rounded-2xl shadow-sm border border-gray-100 animate-fadeIn">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Filter Transactions</h3>
+            <div className="bg-white/70 backdrop-blur rounded-2xl shadow-sm border border-brand-100 animate-fadeIn">
+              <h3 className="text-lg font-semibold text-brand-900 mb-4">Filter Transactions</h3>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Account</label>
+                  <label className="block text-sm font-medium text-brand-700 mb-2">Account</label>
                   <select
                     value={filters.accountId}
                     onChange={(e) => setFilters(prev => ({ ...prev, accountId: e.target.value }))}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full border border-brand-300 rounded-md px-3 py-2 text-brand-900 focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
                   >
                     <option value="">All Accounts</option>
                     {pageData.accounts.map((account) => (
@@ -461,11 +461,11 @@ export default function Dashboard() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                  <label className="block text-sm font-medium text-brand-700 mb-2">Category</label>
                   <select
                     value={filters.categoryId}
                     onChange={(e) => setFilters(prev => ({ ...prev, categoryId: e.target.value }))}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full border border-brand-300 rounded-md px-3 py-2 text-brand-900 focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
                   >
                     <option value="">All Categories</option>
                     <option value="null">Uncategorized</option>
@@ -478,36 +478,36 @@ export default function Dashboard() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                  <label className="block text-sm font-medium text-brand-700 mb-2">Search</label>
                   <input
                     type="text"
                     placeholder="Search descriptions..."
                     value={filters.q}
                     onChange={(e) => setFilters(prev => ({ ...prev, q: e.target.value }))}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full border border-brand-300 rounded-md px-3 py-2 text-brand-900 placeholder-brand-500 focus:ring-2 focus:ring-accent-500 focus:border-accent-500"
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Options</label>
+                  <label className="block text-sm font-medium text-brand-700 mb-2">Options</label>
                   <div className="flex flex-col space-y-2">
                     <label className="flex items-center">
                       <input
                         type="checkbox"
                         checked={filters.includeTransfers}
                         onChange={(e) => setFilters(prev => ({ ...prev, includeTransfers: e.target.checked }))}
-                        className="mr-2 text-indigo-600 focus:ring-indigo-500"
+                        className="mr-2 text-accent-600 focus:ring-accent-500"
                       />
-                      <span className="text-sm text-gray-700">Include Transfers</span>
+                      <span className="text-sm text-brand-700">Include Transfers</span>
                     </label>
                     <label className="flex items-center">
                       <input
                         type="checkbox"
                         checked={filters.onlyCandidates}
                         onChange={(e) => setFilters(prev => ({ ...prev, onlyCandidates: e.target.checked }))}
-                        className="mr-2 text-indigo-600 focus:ring-indigo-500"
+                        className="mr-2 text-accent-600 focus:ring-accent-500"
                       />
-                      <span className="text-sm text-gray-700">Review Only</span>
+                      <span className="text-sm text-brand-700">Review Only</span>
                     </label>
                   </div>
                 </div>
@@ -517,80 +517,80 @@ export default function Dashboard() {
             {/* Transactions Table */}
             {transactions && (
               <div className="bg-white rounded-lg shadow border overflow-hidden">
-                <div className="px-6 py-4 border-b bg-gray-50">
+                <div className="px-6 py-4 border-b bg-brand-50">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-gray-900">
+                    <h3 className="text-lg font-semibold text-brand-900">
                       Transaction History
                     </h3>
-                    <div className="text-sm font-medium text-gray-700">
+                    <div className="text-sm font-medium text-brand-700">
                       Showing {transactions.rows.length} of {transactions.total} transactions
                     </div>
                   </div>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="min-w-full">
-                    <thead className="bg-gray-100 border-b border-gray-200">
+                    <thead className="bg-brand-100 border-b border-brand-200">
                       <tr>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-brand-900">
                           <input
                             type="checkbox"
                             checked={transactions.rows.length > 0 && selectedTransactions.size === transactions.rows.length}
                             onChange={(e) => handleSelectAll(e.target.checked)}
-                            className="text-indigo-600 focus:ring-indigo-500"
+                            className="text-accent-600 focus:ring-accent-500"
                           />
                         </th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-brand-900">
                           Date
                         </th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-brand-900">
                           Account
                         </th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-brand-900">
                           Description
                         </th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-brand-900">
                           Amount
                         </th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-brand-900">
                           Category
                         </th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-brand-900">
                           Actions
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody className="divide-y divide-brand-100">
                       {transactions.rows.map((tx) => (
-                        <tr key={tx.id} className="hover:bg-gray-50 transition-colors">
+                        <tr key={tx.id} className="hover:bg-brand-50 transition-colors">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <input
                               type="checkbox"
                               checked={selectedTransactions.has(tx.id)}
                               onChange={(e) => handleSelectTransaction(tx.id, e.target.checked)}
-                              className="text-indigo-600 focus:ring-indigo-500"
+                              className="text-accent-600 focus:ring-accent-500"
                             />
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-brand-900">
                             {new Date(tx.date).toLocaleDateString('en-US', { 
                               month: 'short', 
                               day: 'numeric',
                               year: 'numeric' 
                             })}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-brand-700">
                             {tx.account}
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-900 max-w-xs">
+                          <td className="px-6 py-4 text-sm text-brand-900 max-w-xs">
                             <div className="flex items-center">
                               <span className="truncate">{tx.description}</span>
                               <div className="ml-2 flex space-x-1">
                                 {tx.isTransfer && (
-                                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-500 text-white">
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-accent-500 text-white">
                                     Transfer
                                   </span>
                                 )}
                                 {tx.transferCandidate && (
-                                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-500 text-white">
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-warning-500 text-white">
                                     Review
                                   </span>
                                 )}
@@ -598,15 +598,15 @@ export default function Dashboard() {
                             </div>
                           </td>
                           <td className={`px-6 py-4 whitespace-nowrap text-sm font-bold ${
-                            tx.amountCents >= 0 ? 'text-green-700' : 'text-red-700'
+                            tx.amountCents >= 0 ? 'text-success-700' : 'text-danger-700'
                           }`}>
                             {formatCurrency(tx.amountCents)}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
                               tx.categoryName 
-                                ? 'bg-gray-100 text-gray-800'
-                                : 'bg-yellow-100 text-yellow-800'
+                                ? 'bg-brand-100 text-brand-800'
+                                : 'bg-warning-100 text-warning-800'
                             }`}>
                               {tx.categoryName || 'Uncategorized'}
                             </span>
@@ -614,7 +614,7 @@ export default function Dashboard() {
                           <td className="px-6 py-4 whitespace-nowrap">
                             <button
                               onClick={() => setDeleteConfirm({ show: true, transactionId: tx.id })}
-                              className="text-red-600 hover:text-red-900 hover:bg-red-50 p-1 rounded"
+                              className="text-danger-600 hover:text-danger-900 hover:bg-danger-50 p-1 rounded"
                               title="Delete transaction"
                             >
                               <Trash2 className="h-4 w-4" />
@@ -627,8 +627,8 @@ export default function Dashboard() {
                 </div>
                 {transactions.rows.length === 0 && (
                   <div className="text-center py-12">
-                    <div className="text-gray-500 text-lg">No transactions found</div>
-                    <div className="text-gray-400 text-sm mt-2">Try adjusting your filters or upload some CSV data</div>
+                    <div className="text-brand-500 text-lg">No transactions found</div>
+                    <div className="text-brand-400 text-sm mt-2">Try adjusting your filters or upload some CSV data</div>
                   </div>
                 )}
               </div>
@@ -642,12 +642,12 @@ export default function Dashboard() {
           <div className="bg-white rounded-lg max-w-md w-full p-6">
             <div className="flex items-center mb-4">
               <div className="flex-shrink-0">
-                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                  <Trash2 className="w-6 h-6 text-red-600" />
+                <div className="w-10 h-10 bg-danger-100 rounded-full flex items-center justify-center">
+                  <Trash2 className="w-6 h-6 text-danger-600" />
                 </div>
               </div>
               <div className="ml-4">
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-lg font-semibold text-brand-900">
                   {deleteConfirm.deleteAll 
                     ? 'Delete All Transactions' 
                     : deleteConfirm.selectedIds
@@ -655,7 +655,7 @@ export default function Dashboard() {
                     : 'Delete Transaction'
                   }
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-brand-600 mt-1">
                   {deleteConfirm.deleteAll 
                     ? 'This will permanently delete all transactions. This action cannot be undone.'
                     : deleteConfirm.selectedIds
@@ -668,13 +668,13 @@ export default function Dashboard() {
             <div className="flex justify-end space-x-3">
               <button
                 onClick={() => setDeleteConfirm({ show: false })}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+                className="px-4 py-2 text-sm font-medium text-brand-700 bg-brand-100 hover:bg-brand-200 rounded-md"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleDeleteTransaction(deleteConfirm.transactionId, deleteConfirm.deleteAll, deleteConfirm.selectedIds)}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md"
+                className="px-4 py-2 text-sm font-medium text-white bg-danger-600 hover:bg-danger-700 rounded-md"
               >
                 {deleteConfirm.deleteAll 
                   ? 'Delete All' 

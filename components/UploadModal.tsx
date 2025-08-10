@@ -100,10 +100,10 @@ export default function UploadModal({ isOpen, onClose, onSuccess }: UploadModalP
       <div className="bg-white rounded-lg max-w-md w-full p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">Upload CSV File</h2>
+          <h2 className="text-xl font-semibold text-brand-900">Upload CSV File</h2>
           <button
             onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-brand-400 hover:text-brand-600"
           >
             <X className="h-6 w-6" />
           </button>
@@ -112,28 +112,28 @@ export default function UploadModal({ isOpen, onClose, onSuccess }: UploadModalP
 
         {/* File Upload Area */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-3">
+          <label className="block text-sm font-medium text-brand-700 mb-3">
             Upload CSV File
           </label>
           
           <div
-            className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors cursor-pointer"
+            className="border-2 border-dashed border-brand-300 rounded-lg p-6 text-center hover:border-brand-400 transition-colors cursor-pointer"
             onDragOver={handleDragOver}
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
           >
-            <UploadIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <UploadIcon className="h-12 w-12 text-brand-400 mx-auto mb-4" />
             {selectedFile ? (
               <div>
-                <p className="text-sm font-medium text-gray-900">{selectedFile.name}</p>
-                <p className="text-xs text-gray-500">Click to change file</p>
+                <p className="text-sm font-medium text-brand-900">{selectedFile.name}</p>
+                <p className="text-xs text-brand-500">Click to change file</p>
               </div>
             ) : (
               <div>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-brand-600">
                   Drag and drop your CSV file here, or click to browse
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-brand-500 mt-1">
                   Only CSV files are supported
                 </p>
               </div>
@@ -150,20 +150,20 @@ export default function UploadModal({ isOpen, onClose, onSuccess }: UploadModalP
         </div>
 
         {/* Supported Formats Info */}
-        <div className="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
-          <h4 className="text-sm font-semibold text-indigo-900 mb-2">Supported CSV Formats:</h4>
-          <div className="text-xs text-indigo-800 space-y-3">
+        <div className="mb-6 p-4 bg-accent-50 border border-accent-200 rounded-lg">
+          <h4 className="text-sm font-semibold text-accent-900 mb-2">Supported CSV Formats:</h4>
+          <div className="text-xs text-accent-800 space-y-3">
             <div>
               <div className="font-medium">Chase Banking CSV:</div>
-              <div className="mt-1 text-indigo-700 font-mono">Post Date, Description, Amount</div>
-              <div className="mt-1 text-indigo-600 italic">Example: 07/01/2025,PAYROLL,3000.00</div>
+              <div className="mt-1 text-accent-700 font-mono">Post Date, Description, Amount</div>
+              <div className="mt-1 text-accent-600 italic">Example: 07/01/2025,PAYROLL,3000.00</div>
             </div>
             <div>
               <div className="font-medium">Venmo CSV:</div>
-              <div className="mt-1 text-indigo-700 font-mono">Datetime, Type, From, To, Amount (total), Amount (fee), Note, ID</div>
-              <div className="mt-1 text-indigo-600 italic">Example: 07/05/2025 10:22:00,Payment,,Alice,-45.00,0.00,Dinner,TXN1</div>
+              <div className="mt-1 text-accent-700 font-mono">Datetime, Type, From, To, Amount (total), Amount (fee), Note, ID</div>
+              <div className="mt-1 text-accent-600 italic">Example: 07/05/2025 10:22:00,Payment,,Alice,-45.00,0.00,Dinner,TXN1</div>
             </div>
-            <div className="mt-2 text-indigo-600 text-xs italic">
+            <div className="mt-2 text-accent-600 text-xs italic">
               💡 Format will be automatically detected from CSV headers
             </div>
           </div>
@@ -171,33 +171,33 @@ export default function UploadModal({ isOpen, onClose, onSuccess }: UploadModalP
 
         {/* Error Message */}
         {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center">
-            <AlertCircle className="h-5 w-5 text-red-500 mr-3 flex-shrink-0" />
-            <p className="text-sm font-medium text-red-800">{error}</p>
+          <div className="mb-4 p-4 bg-danger-50 border border-danger-200 rounded-lg flex items-center">
+            <AlertCircle className="h-5 w-5 text-danger-500 mr-3 flex-shrink-0" />
+            <p className="text-sm font-medium text-danger-800">{error}</p>
           </div>
         )}
 
         {/* Success Result */}
         {result && (
-          <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div className="mb-4 p-4 bg-success-50 border border-success-200 rounded-lg">
             <div className="flex items-center mb-3">
-              <CheckCircle className="h-6 w-6 text-green-600 mr-3" />
-              <h4 className="text-base font-semibold text-green-900">Upload Successful!</h4>
+              <CheckCircle className="h-6 w-6 text-success-600 mr-3" />
+              <h4 className="text-base font-semibold text-success-900">Upload Successful!</h4>
             </div>
             {result.detectedFormat && (
-              <div className="mb-3 p-2 bg-green-100 border border-green-300 rounded text-xs">
-                <span className="font-medium text-green-800">
+              <div className="mb-3 p-2 bg-success-100 border border-success-300 rounded text-xs">
+                <span className="font-medium text-success-800">
                   📄 Detected format: {result.detectedFormat}
                   {result.confidence && ` (${Math.round(result.confidence * 100)}% confidence)`}
                 </span>
               </div>
             )}
-            <div className="text-sm text-green-800 space-y-2">
-              <div className="flex justify-between items-center py-1 border-b border-green-200">
+            <div className="text-sm text-success-800 space-y-2">
+              <div className="flex justify-between items-center py-1 border-b border-success-200">
                 <span>New transactions imported:</span>
                 <span className="font-bold">{result.imported}</span>
               </div>
-              <div className="flex justify-between items-center py-1 border-b border-green-200">
+              <div className="flex justify-between items-center py-1 border-b border-success-200">
                 <span>Duplicates skipped:</span>
                 <span className="font-bold">{result.duplicates}</span>
               </div>
@@ -206,12 +206,12 @@ export default function UploadModal({ isOpen, onClose, onSuccess }: UploadModalP
                 <span className="font-bold">{result.transferCandidates}</span>
               </div>
               {result.message && (
-                <div className="mt-2 p-2 bg-green-100 rounded text-xs font-medium text-green-700">
+                <div className="mt-2 p-2 bg-success-100 rounded text-xs font-medium text-success-700">
                   {result.message}
                 </div>
               )}
             </div>
-            <div className="mt-4 text-center text-sm text-green-700 font-medium">
+            <div className="mt-4 text-center text-sm text-success-700 font-medium">
               🎉 Dashboard will refresh automatically...
             </div>
           </div>
@@ -221,7 +221,7 @@ export default function UploadModal({ isOpen, onClose, onSuccess }: UploadModalP
         <div className="flex justify-end space-x-3">
           <button
             onClick={handleClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+            className="px-4 py-2 text-sm font-medium text-brand-700 bg-brand-100 hover:bg-brand-200 rounded-md"
             disabled={uploading}
           >
             Cancel
@@ -229,7 +229,7 @@ export default function UploadModal({ isOpen, onClose, onSuccess }: UploadModalP
           <button
             onClick={handleUpload}
             disabled={!selectedFile || uploading}
-            className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed rounded-md"
+            className="px-4 py-2 text-sm font-medium text-white bg-accent-600 hover:bg-accent-700 disabled:bg-brand-400 disabled:cursor-not-allowed rounded-md"
           >
             {uploading ? 'Uploading...' : 'Upload'}
           </button>
