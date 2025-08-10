@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
           const venmoDataLines = lines.slice(2) // Skip first 2 rows
           const venmoCSV = venmoDataLines.join('\n')
           
-          parseString(venmoCSV, { headers: true, ignoreEmpty: true })
+          parseString(venmoCSV, { headers: true, ignoreEmpty: true, discardUnmappedColumns: true })
             .on('data', row => {
               // Skip summary/footer rows
               if (row[''] && (row[''].includes('Cryptocurrency summary') || row[''].includes('In case of errors'))) {
@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
             })
         } else {
           // For Chase and other formats, parse normally
-          parseString(csvString, { headers: true, ignoreEmpty: true })
+          parseString(csvString, { headers: true, ignoreEmpty: true, discardUnmappedColumns: true })
             .on('data', row => {
               parsedRows.push(row)
             })
