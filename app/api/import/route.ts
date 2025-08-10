@@ -52,15 +52,31 @@ export async function POST(request: NextRequest) {
       })
     }
     
-    // Create ImportFile record
-    const importFile = await prisma.importFile.create({
-      data: {
-        source: source as Provider,
-        filename: file.name,
-        sha256,
-        status: FileStatus.PENDING
-      }
-    })
+    // Create or reuse ImportFile record
+    let importFile
+    if (existingFile && existingFile.status === FileStatus.ERROR) {
+      // Reuse existing errored file and reset for retry
+      importFile = await prisma.importFile.update({
+        where: { id: existingFile.id },
+        data: {
+          status: FileStatus.PENDING,
+          error: null,
+          imported: 0,
+          duplicates: 0,
+          processedAt: null
+        }
+      })
+    } else {
+      // Create new ImportFile record
+      importFile = await prisma.importFile.create({
+        data: {
+          source: source as Provider,
+          filename: file.name,
+          sha256,
+          status: FileStatus.PENDING
+        }
+      })
+    }
     
     try {
       // Get account for the source
