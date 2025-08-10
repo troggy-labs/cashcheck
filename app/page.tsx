@@ -71,7 +71,9 @@ export default function Dashboard() {
     show: boolean
     transactionId?: string
     deleteAll?: boolean
+    selectedIds?: string[]
   }>({ show: false })
+  const [selectedTransactions, setSelectedTransactions] = useState<Set<string>>(new Set())
   
   // Transaction filters
   const [filters, setFilters] = useState({
@@ -106,7 +108,7 @@ export default function Dashboard() {
       const params = new URLSearchParams({
         month: currentMonth,
         page: '1',
-        pageSize: '100'
+        pageSize: '200'
       })
       
       if (filters.accountId) params.set('accountId', filters.accountId)
@@ -176,26 +178,67 @@ export default function Dashboard() {
     return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
   }
   
-  const handleDeleteTransaction = async (transactionId?: string, deleteAll?: boolean) => {
-    try {
-      const params = new URLSearchParams()
-      if (deleteAll) {
-        params.set('all', 'true')
-      } else if (transactionId) {
-        params.set('id', transactionId)
-      }
-      
-      const response = await fetch(`/api/transactions?${params}`, {
-        method: 'DELETE'
-      })
-      
-      if (response.ok) {
-        // Refresh data
-        fetchPageData()
-        fetchTransactions()
-        setDeleteConfirm({ show: false })
+  const handleSelectTransaction = (transactionId: string, checked: boolean) => {
+    setSelectedTransactions(prev => {
+      const newSet = new Set(prev)
+      if (checked) {
+        newSet.add(transactionId)
       } else {
-        console.error('Failed to delete transaction(s)')
+        newSet.delete(transactionId)
+      }
+      return newSet
+    })
+  }
+
+  const handleSelectAll = (checked: boolean) => {
+    if (!transactions) return
+    
+    setSelectedTransactions(checked 
+      ? new Set(transactions.rows.map(tx => tx.id))
+      : new Set()
+    )
+  }
+
+  const handleDeleteTransaction = async (transactionId?: string, deleteAll?: boolean, selectedIds?: string[]) => {
+    try {
+      if (selectedIds && selectedIds.length > 0) {
+        // Bulk delete selected transactions
+        const response = await fetch('/api/transactions/bulk-delete', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ ids: selectedIds })
+        })
+        
+        if (response.ok) {
+          setSelectedTransactions(new Set())
+          fetchPageData()
+          fetchTransactions()
+          setDeleteConfirm({ show: false })
+        } else {
+          console.error('Failed to delete selected transactions')
+        }
+      } else {
+        // Single delete or delete all
+        const params = new URLSearchParams()
+        if (deleteAll) {
+          params.set('all', 'true')
+        } else if (transactionId) {
+          params.set('id', transactionId)
+        }
+        
+        const response = await fetch(`/api/transactions?${params}`, {
+          method: 'DELETE'
+        })
+        
+        if (response.ok) {
+          fetchPageData()
+          fetchTransactions()
+          setDeleteConfirm({ show: false })
+        } else {
+          console.error('Failed to delete transaction(s)')
+        }
       }
     } catch (error) {
       console.error('Delete error:', error)
@@ -205,11 +248,13 @@ export default function Dashboard() {
   useEffect(() => {
     fetchPageData()
     fetchTransactions()
+    setSelectedTransactions(new Set()) // Clear selection when month changes
     setLoading(false)
   }, [currentMonth])
   
   useEffect(() => {
     fetchTransactions()
+    setSelectedTransactions(new Set()) // Clear selection when filters change
   }, [filters])
   
   if (loading || !pageData) {
@@ -366,13 +411,27 @@ export default function Dashboard() {
         <div className="space-y-6 mt-12">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-gray-900">Transactions</h2>
-            <button
-              onClick={() => setDeleteConfirm({ show: true, deleteAll: true })}
-              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 inline-flex items-center text-sm"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Clear All
-            </button>
+            <div className="flex items-center space-x-3">
+              {selectedTransactions.size > 0 && (
+                <button
+                  onClick={() => setDeleteConfirm({ 
+                    show: true, 
+                    selectedIds: Array.from(selectedTransactions) 
+                  })}
+                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 inline-flex items-center text-sm"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Selected ({selectedTransactions.size})
+                </button>
+              )}
+              <button
+                onClick={() => setDeleteConfirm({ show: true, deleteAll: true })}
+                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 inline-flex items-center text-sm"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Clear All
+              </button>
+            </div>
           </div>
             
             {/* Filters */}
@@ -467,6 +526,14 @@ export default function Dashboard() {
                     <thead className="bg-gray-100 border-b border-gray-200">
                       <tr>
                         <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                          <input
+                            type="checkbox"
+                            checked={transactions.rows.length > 0 && selectedTransactions.size === transactions.rows.length}
+                            onChange={(e) => handleSelectAll(e.target.checked)}
+                            className="text-indigo-600 focus:ring-indigo-500"
+                          />
+                        </th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
                           Date
                         </th>
                         <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
@@ -489,6 +556,14 @@ export default function Dashboard() {
                     <tbody className="divide-y divide-gray-100">
                       {transactions.rows.map((tx) => (
                         <tr key={tx.id} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <input
+                              type="checkbox"
+                              checked={selectedTransactions.has(tx.id)}
+                              onChange={(e) => handleSelectTransaction(tx.id, e.target.checked)}
+                              className="text-indigo-600 focus:ring-indigo-500"
+                            />
+                          </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                             {new Date(tx.date).toLocaleDateString('en-US', { 
                               month: 'short', 
@@ -567,11 +642,18 @@ export default function Dashboard() {
               </div>
               <div className="ml-4">
                 <h3 className="text-lg font-semibold text-gray-900">
-                  {deleteConfirm.deleteAll ? 'Delete All Transactions' : 'Delete Transaction'}
+                  {deleteConfirm.deleteAll 
+                    ? 'Delete All Transactions' 
+                    : deleteConfirm.selectedIds
+                    ? `Delete ${deleteConfirm.selectedIds.length} Selected Transaction${deleteConfirm.selectedIds.length > 1 ? 's' : ''}`
+                    : 'Delete Transaction'
+                  }
                 </h3>
                 <p className="text-sm text-gray-600 mt-1">
                   {deleteConfirm.deleteAll 
                     ? 'This will permanently delete all transactions. This action cannot be undone.'
+                    : deleteConfirm.selectedIds
+                    ? `This will permanently delete ${deleteConfirm.selectedIds.length} selected transaction${deleteConfirm.selectedIds.length > 1 ? 's' : ''}. This action cannot be undone.`
                     : 'This will permanently delete this transaction. This action cannot be undone.'
                   }
                 </p>
@@ -585,10 +667,15 @@ export default function Dashboard() {
                 Cancel
               </button>
               <button
-                onClick={() => handleDeleteTransaction(deleteConfirm.transactionId, deleteConfirm.deleteAll)}
+                onClick={() => handleDeleteTransaction(deleteConfirm.transactionId, deleteConfirm.deleteAll, deleteConfirm.selectedIds)}
                 className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md"
               >
-                {deleteConfirm.deleteAll ? 'Delete All' : 'Delete'}
+                {deleteConfirm.deleteAll 
+                  ? 'Delete All' 
+                  : deleteConfirm.selectedIds
+                  ? 'Delete Selected'
+                  : 'Delete'
+                }
               </button>
             </div>
           </div>

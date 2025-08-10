@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
     const categoryId = url.searchParams.get('categoryId')
     const q = url.searchParams.get('q') // search query
     const page = parseInt(url.searchParams.get('page') || '1')
-    const pageSize = parseInt(url.searchParams.get('pageSize') || '100')
+    const pageSize = parseInt(url.searchParams.get('pageSize') || '200')
     const includeTransfers = url.searchParams.get('includeTransfers') === 'true'
     const onlyCandidates = url.searchParams.get('onlyCandidates') === 'true'
     
