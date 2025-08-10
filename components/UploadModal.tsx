@@ -14,10 +14,11 @@ interface UploadResult {
   duplicates: number
   transferCandidates: number
   message?: string
+  detectedFormat?: string
+  confidence?: number
 }
 
 export default function UploadModal({ isOpen, onClose, onSuccess }: UploadModalProps) {
-  const [selectedSource, setSelectedSource] = useState<'CHASE' | 'VENMO'>('CHASE')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const [result, setResult] = useState<UploadResult | null>(null)
@@ -60,7 +61,7 @@ export default function UploadModal({ isOpen, onClose, onSuccess }: UploadModalP
       const formData = new FormData()
       formData.append('file', selectedFile)
 
-      const response = await fetch(`/api/import?source=${selectedSource}`, {
+      const response = await fetch('/api/import', {
         method: 'POST',
         body: formData
       })
@@ -77,7 +78,7 @@ export default function UploadModal({ isOpen, onClose, onSuccess }: UploadModalP
       } else {
         setError(data.error || 'Upload failed')
       }
-    } catch (err) {
+    } catch {
       setError('Upload failed. Please try again.')
     } finally {
       setUploading(false)
@@ -108,34 +109,6 @@ export default function UploadModal({ isOpen, onClose, onSuccess }: UploadModalP
           </button>
         </div>
 
-        {/* Source Selection */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-3">
-            Select Source
-          </label>
-          <div className="flex space-x-4">
-            <label className="flex items-center">
-              <input
-                type="radio"
-                value="CHASE"
-                checked={selectedSource === 'CHASE'}
-                onChange={(e) => setSelectedSource(e.target.value as 'CHASE' | 'VENMO')}
-                className="mr-2"
-              />
-              Chase Checking
-            </label>
-            <label className="flex items-center">
-              <input
-                type="radio"
-                value="VENMO"
-                checked={selectedSource === 'VENMO'}
-                onChange={(e) => setSelectedSource(e.target.value as 'CHASE' | 'VENMO')}
-                className="mr-2"
-              />
-              Venmo
-            </label>
-          </div>
-        </div>
 
         {/* File Upload Area */}
         <div className="mb-6">
@@ -176,22 +149,24 @@ export default function UploadModal({ isOpen, onClose, onSuccess }: UploadModalP
           />
         </div>
 
-        {/* Expected Headers Info */}
+        {/* Supported Formats Info */}
         <div className="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
-          <h4 className="text-sm font-semibold text-indigo-900 mb-2">Expected CSV Headers:</h4>
-          {selectedSource === 'CHASE' ? (
-            <div className="text-xs text-indigo-800">
+          <h4 className="text-sm font-semibold text-indigo-900 mb-2">Supported CSV Formats:</h4>
+          <div className="text-xs text-indigo-800 space-y-3">
+            <div>
               <div className="font-medium">Chase Banking CSV:</div>
               <div className="mt-1 text-indigo-700 font-mono">Post Date, Description, Amount</div>
               <div className="mt-1 text-indigo-600 italic">Example: 07/01/2025,PAYROLL,3000.00</div>
             </div>
-          ) : (
-            <div className="text-xs text-indigo-800">
+            <div>
               <div className="font-medium">Venmo CSV:</div>
               <div className="mt-1 text-indigo-700 font-mono">Datetime, Type, From, To, Amount (total), Amount (fee), Note, ID</div>
               <div className="mt-1 text-indigo-600 italic">Example: 07/05/2025 10:22:00,Payment,,Alice,-45.00,0.00,Dinner,TXN1</div>
             </div>
-          )}
+            <div className="mt-2 text-indigo-600 text-xs italic">
+              💡 Format will be automatically detected from CSV headers
+            </div>
+          </div>
         </div>
 
         {/* Error Message */}
@@ -209,6 +184,14 @@ export default function UploadModal({ isOpen, onClose, onSuccess }: UploadModalP
               <CheckCircle className="h-6 w-6 text-green-600 mr-3" />
               <h4 className="text-base font-semibold text-green-900">Upload Successful!</h4>
             </div>
+            {result.detectedFormat && (
+              <div className="mb-3 p-2 bg-green-100 border border-green-300 rounded text-xs">
+                <span className="font-medium text-green-800">
+                  📄 Detected format: {result.detectedFormat}
+                  {result.confidence && ` (${Math.round(result.confidence * 100)}% confidence)`}
+                </span>
+              </div>
+            )}
             <div className="text-sm text-green-800 space-y-2">
               <div className="flex justify-between items-center py-1 border-b border-green-200">
                 <span>New transactions imported:</span>

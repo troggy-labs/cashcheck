@@ -6,6 +6,7 @@ import { parseChaseRow } from '@/lib/parsers/chase'
 import { parseVenmoRow } from '@/lib/parsers/venmo'
 import { categorizeBatch } from '@/lib/categorization'
 import { processTransferDetection } from '@/lib/transfer-detection'
+import { detectCSVFormat, validateDetectedFormat } from '@/lib/csv-detector'
 
 const prisma = new PrismaClient()
 
@@ -13,16 +14,6 @@ export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
-    const url = new URL(request.url)
-    const source = url.searchParams.get('source')
-    
-    if (!source || !['CHASE', 'VENMO'].includes(source)) {
-      return NextResponse.json(
-        { error: 'Invalid source parameter. Must be CHASE or VENMO' },
-        { status: 400 }
-      )
-    }
-    
     const formData = await request.formData()
     const file = formData.get('file') as File
     
@@ -38,6 +29,47 @@ export async function POST(request: NextRequest) {
     const fileBuffer = Buffer.from(buffer)
     const sha256 = crypto.createHash('sha256').update(fileBuffer).digest('hex')
     
+    // Parse CSV to detect format
+    const csvString = fileBuffer.toString('utf-8')
+    let detectedProvider: Provider
+    let confidence: number
+    
+    try {
+      // Get first row to detect format
+      const firstRow: Record<string, string> = await new Promise((resolve, reject) => {
+        parseString(csvString, { headers: true, maxRows: 1 })
+          .on('data', row => resolve(row))
+          .on('error', reject)
+          .on('end', () => resolve({}))
+      })
+      
+      if (Object.keys(firstRow).length === 0) {
+        return NextResponse.json(
+          { error: 'CSV file appears to be empty or malformed' },
+          { status: 400 }
+        )
+      }
+      
+      // Detect CSV format
+      const detection = detectCSVFormat(firstRow)
+      detectedProvider = detection.provider
+      confidence = detection.confidence
+      
+      // Validate that we can parse this format
+      if (!validateDetectedFormat(detectedProvider, firstRow)) {
+        return NextResponse.json(
+          { error: `Unable to detect valid CSV format. Expected ${detectedProvider} headers but validation failed.` },
+          { status: 400 }
+        )
+      }
+      
+    } catch {
+      return NextResponse.json(
+        { error: 'Failed to parse CSV file. Please ensure it is a valid CSV format.' },
+        { status: 400 }
+      )
+    }
+    
     // Check if file already processed
     const existingFile = await prisma.importFile.findUnique({
       where: { sha256 }
@@ -48,7 +80,9 @@ export async function POST(request: NextRequest) {
         imported: 0,
         duplicates: existingFile.imported,
         transferCandidates: 0,
-        message: 'File already processed'
+        message: 'File already processed',
+        detectedFormat: detectedProvider,
+        confidence
       })
     }
     
@@ -70,7 +104,7 @@ export async function POST(request: NextRequest) {
       // Create new ImportFile record
       importFile = await prisma.importFile.create({
         data: {
-          source: source as Provider,
+          source: detectedProvider,
           filename: file.name,
           sha256,
           status: FileStatus.PENDING
@@ -79,15 +113,15 @@ export async function POST(request: NextRequest) {
     }
     
     try {
-      // Get account for the source
+      // Get account for the detected provider
       const account = await prisma.account.findFirst({
         where: {
-          provider: source as Provider
+          provider: detectedProvider
         }
       })
       
       if (!account) {
-        throw new Error(`No account found for provider ${source}`)
+        throw new Error(`No account found for provider ${detectedProvider}`)
       }
       
       // Get timezone setting
@@ -96,13 +130,11 @@ export async function POST(request: NextRequest) {
       })
       const timezone = timezoneSetting?.value || 'America/Los_Angeles'
       
-      // Parse CSV using fast-csv for proper parsing
-      const csvString = fileBuffer.toString('utf-8')
-      
+      // Parse CSV using fast-csv for proper parsing - reuse the csvString we already have
       const rows: Record<string, string>[] = await new Promise((resolve, reject) => {
         const parsedRows: Record<string, string>[] = []
         
-        if (source === 'VENMO') {
+        if (detectedProvider === Provider.VENMO) {
           // For Venmo, skip the first 2 header rows and start parsing from row 3
           const lines = csvString.split('\n')
           const venmoDataLines = lines.slice(2) // Skip first 2 rows
@@ -149,9 +181,9 @@ export async function POST(request: NextRequest) {
       let parsedTransactions: (ReturnType<typeof parseChaseRow> | ReturnType<typeof parseVenmoRow>[number])[] = []
       
       try {
-        if (source === 'CHASE') {
+        if (detectedProvider === Provider.CHASE) {
           parsedTransactions = rows.map(row => parseChaseRow(row, account.id, timezone))
-        } else if (source === 'VENMO') {
+        } else if (detectedProvider === Provider.VENMO) {
           for (const row of rows) {
             const venmoTxs = parseVenmoRow(row, account.id, timezone)
             parsedTransactions.push(...venmoTxs)
@@ -159,11 +191,11 @@ export async function POST(request: NextRequest) {
         }
         
         if (parsedTransactions.length === 0) {
-          throw new Error(`No valid transactions found in ${source} CSV. Please check the file format and ensure it contains transaction data.`)
+          throw new Error(`No valid transactions found in ${detectedProvider} CSV. Please check the file format and ensure it contains transaction data.`)
         }
       } catch (parseError) {
         console.error('Transaction parsing error:', parseError)
-        throw new Error(`Failed to parse ${source} transactions: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`)
+        throw new Error(`Failed to parse ${detectedProvider} transactions: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`)
       }
       
       // Categorize transactions
@@ -229,7 +261,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         imported,
         duplicates,
-        transferCandidates: totalTransferCandidates
+        transferCandidates: totalTransferCandidates,
+        detectedFormat: detectedProvider,
+        confidence
       })
       
     } catch (error) {
