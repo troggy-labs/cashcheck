@@ -109,8 +109,8 @@ export default function RulesModal({
     setEditingRule(rule)
     setFormData({
       pattern: rule.pattern,
-      matchType: rule.matchType,
-      direction: rule.direction,
+      matchType: rule.matchType as 'CONTAINS' | 'REGEX',
+      direction: rule.direction as 'INFLOW' | 'OUTFLOW' | 'NONE',
       categoryId: rule.categoryId,
       accountId: rule.accountId || '',
       priority: rule.priority,
@@ -159,26 +159,26 @@ export default function RulesModal({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
-        <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-xl font-semibold text-gray-900">Categorization Rules</h2>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-6 z-50 animate-fadeIn">
+      <div className="surface-elevated rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden shadow-strong animate-scaleIn">
+        <header className="flex items-center justify-between p-8 border-b border-brand-200/50">
+          <h2 className="text-2xl font-semibold text-brand-900">Categorization Rules</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-brand-400 hover:text-brand-600 transition-colors p-2 rounded-lg hover:bg-brand-50"
           >
             <X className="h-6 w-6" />
           </button>
-        </div>
+        </header>
         
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-          <div className="flex items-center justify-between mb-6">
-            <p className="text-sm text-gray-600">
+        <main className="p-8 overflow-y-auto max-h-[calc(90vh-140px)]">
+          <div className="flex items-center justify-between mb-8">
+            <p className="text-base text-brand-600">
               Rules automatically categorize transactions based on patterns in descriptions.
             </p>
             <button
               onClick={() => setShowForm(true)}
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 inline-flex items-center text-sm"
+              className="bg-gradient-to-r from-accent-500 to-accent-600 text-white px-6 py-3 rounded-xl hover:from-accent-600 hover:to-accent-700 inline-flex items-center text-sm font-semibold transition-all duration-200 shadow-soft hover:shadow-medium transform hover:-translate-y-0.5"
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Rule
@@ -187,14 +187,14 @@ export default function RulesModal({
 
           {/* Add/Edit Rule Form */}
           {showForm && (
-            <div className="bg-gray-50 rounded-lg p-6 mb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
+            <section className="surface rounded-2xl p-8 mb-8 shadow-soft">
+              <h3 className="text-xl font-semibold text-brand-900 mb-6">
                 {editingRule ? 'Edit Rule' : 'Add New Rule'}
               </h3>
               <form onSubmit={handleSubmit}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-brand-700 mb-3">
                       Pattern *
                     </label>
                     <input
@@ -202,19 +202,19 @@ export default function RulesModal({
                       value={formData.pattern}
                       onChange={(e) => setFormData(prev => ({ ...prev, pattern: e.target.value }))}
                       placeholder="e.g., Amazon, Starbucks, SALARY"
-                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                      className="w-full border border-brand-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all duration-200"
                       required
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-brand-700 mb-3">
                       Match Type
                     </label>
                     <select
                       value={formData.matchType}
                       onChange={(e) => setFormData(prev => ({ ...prev, matchType: e.target.value as any }))}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                      className="w-full border border-brand-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all duration-200"
                     >
                       <option value="CONTAINS">Contains</option>
                       <option value="REGEX">Regular Expression</option>
@@ -222,13 +222,13 @@ export default function RulesModal({
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-brand-700 mb-3">
                       Category *
                     </label>
                     <select
                       value={formData.categoryId}
                       onChange={(e) => setFormData(prev => ({ ...prev, categoryId: e.target.value }))}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                      className="w-full border border-brand-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all duration-200"
                       required
                     >
                       <option value="">Select Category</option>
@@ -241,13 +241,13 @@ export default function RulesModal({
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-brand-700 mb-3">
                       Direction
                     </label>
                     <select
                       value={formData.direction}
                       onChange={(e) => setFormData(prev => ({ ...prev, direction: e.target.value as any }))}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                      className="w-full border border-brand-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all duration-200"
                     >
                       <option value="NONE">Any Amount</option>
                       <option value="INFLOW">Positive Only</option>
@@ -256,13 +256,13 @@ export default function RulesModal({
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-brand-700 mb-3">
                       Account (Optional)
                     </label>
                     <select
                       value={formData.accountId}
                       onChange={(e) => setFormData(prev => ({ ...prev, accountId: e.target.value }))}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                      className="w-full border border-brand-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all duration-200"
                     >
                       <option value="">Any Account</option>
                       {accounts.map(account => (
@@ -274,14 +274,14 @@ export default function RulesModal({
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-brand-700 mb-3">
                       Priority
                     </label>
                     <input
                       type="number"
                       value={formData.priority}
                       onChange={(e) => setFormData(prev => ({ ...prev, priority: Number(e.target.value) }))}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                      className="w-full border border-brand-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all duration-200"
                       min="1"
                       max="1000"
                     />
@@ -303,31 +303,31 @@ export default function RulesModal({
                   <button
                     type="button"
                     onClick={resetForm}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md"
+                    className="px-6 py-3 text-sm font-semibold text-brand-700 bg-brand-100 hover:bg-brand-200 rounded-xl transition-all duration-200"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md"
+                    className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-accent-500 to-accent-600 hover:from-accent-600 hover:to-accent-700 rounded-xl transition-all duration-200 shadow-soft hover:shadow-medium transform hover:-translate-y-0.5"
                   >
                     {editingRule ? 'Update Rule' : 'Create Rule'}
                   </button>
                 </div>
               </form>
-            </div>
+            </section>
           )}
 
           {/* Rules List */}
-          <div className="bg-white rounded-lg border overflow-hidden">
+          <div className="surface-elevated rounded-2xl overflow-hidden shadow-soft">
             {loading ? (
               <div className="text-center py-8">
-                <div className="text-gray-500">Loading rules...</div>
+                <div className="text-brand-500">Loading rules...</div>
               </div>
             ) : rules.length === 0 ? (
               <div className="text-center py-8">
-                <div className="text-gray-500">No rules created yet</div>
-                <div className="text-gray-400 text-sm mt-2">Add a rule to automatically categorize transactions</div>
+                <div className="text-brand-600 text-lg">No rules created yet</div>
+                <div className="text-brand-500 text-sm mt-2">Add a rule to automatically categorize transactions</div>
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -408,7 +408,7 @@ export default function RulesModal({
               </div>
             )}
           </div>
-        </div>
+        </main>
       </div>
     </div>
   )

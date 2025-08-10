@@ -10,34 +10,39 @@ interface StatCardProps {
 
 const colorStyles = {
   green: {
-    border: 'border-emerald-200',
-    iconBg: 'bg-emerald-100',
-    icon: 'text-emerald-600',
-    text: 'text-emerald-700'
+    gradient: 'from-success-50 to-success-100/50',
+    border: 'border-success-200/60',
+    iconBg: 'bg-success-100',
+    icon: 'text-success-600',
+    text: 'text-success-700',
+    shadow: 'shadow-success-200/20'
   },
   red: {
-    border: 'border-rose-200',
-    iconBg: 'bg-rose-100',
-    icon: 'text-rose-600',
-    text: 'text-rose-700'
+    gradient: 'from-danger-50 to-danger-100/50',
+    border: 'border-danger-200/60',
+    iconBg: 'bg-danger-100',
+    icon: 'text-danger-600',
+    text: 'text-danger-700',
+    shadow: 'shadow-danger-200/20'
   }
 }
 
 export default function StatCard({ title, amount, color, icon: Icon, className }: StatCardProps) {
   const style = colorStyles[color]
   return (
-    <div
-      className={`rounded-2xl bg-gradient-to-br from-white/80 to-white/60 backdrop-blur p-6 shadow-sm border transition-all duration-300 hover:-translate-y-1 hover:shadow-md animate-fadeIn ${style.border} ${className || ''}`}
+    <article
+      className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br ${style.gradient} backdrop-blur-sm border ${style.border} shadow-soft hover:shadow-medium transition-all duration-300 hover:-translate-y-1 animate-slideUp p-6 ${className || ''}`}
     >
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-sm font-medium text-gray-600">{title}</h3>
-          <p className={`mt-1 text-3xl font-bold ${style.text}`}>{amount}</p>
+      <div className="relative z-10 flex items-start justify-between">
+        <div className="flex-1">
+          <h3 className="text-sm font-medium text-brand-600 uppercase tracking-wide mb-2">{title}</h3>
+          <p className={`text-4xl font-bold ${style.text} tracking-tight`}>{amount}</p>
         </div>
-        <div className={`p-3 rounded-full ${style.iconBg}`}>
-          <Icon className={`w-6 h-6 ${style.icon}`} />
+        <div className={`flex-shrink-0 p-4 rounded-2xl ${style.iconBg} shadow-sm group-hover:scale-110 transition-transform duration-300`}>
+          <Icon className={`w-7 h-7 ${style.icon}`} />
         </div>
       </div>
-    </div>
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform -skew-x-12"></div>
+    </article>
   )
 }

@@ -270,53 +270,53 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-brand/10 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <header className="sticky top-0 z-30 glass border-b border-brand-200/20 shadow-soft">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-5">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-2xl font-bold tracking-tight text-brand">FinClick</h1>
-              <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-6">
+              <h1 className="text-3xl font-bold tracking-tight text-brand-900">FinClick</h1>
+              <nav className="flex items-center space-x-3">
                 <button
                   onClick={() => navigateMonth('prev')}
-                  className="p-1 text-gray-600 hover:text-gray-900 hover:bg-white/60 rounded transition-colors"
+                  className="p-2 text-brand-600 hover:text-brand-900 hover:bg-brand-50 rounded-lg transition-all duration-200"
                   title="Previous month"
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </button>
-                <div className="px-3 py-2 text-lg font-semibold text-gray-900 min-w-[180px] text-center">
+                <div className="px-4 py-2 text-xl font-semibold text-brand-900 min-w-[200px] text-center">
                   {formatMonthDisplay(currentMonth)}
                 </div>
                 <button
                   onClick={() => navigateMonth('next')}
-                  className="p-1 text-gray-600 hover:text-gray-900 hover:bg-white/60 rounded transition-colors"
+                  className="p-2 text-brand-600 hover:text-brand-900 hover:bg-brand-50 rounded-lg transition-all duration-200"
                   title="Next month"
                 >
                   <ChevronRight className="h-5 w-5" />
                 </button>
-              </div>
+              </nav>
             </div>
             
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3">
               <button 
                 onClick={() => setShowUploadModal(true)}
-                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-white/60 rounded-lg transition-colors"
+                className="p-3 text-brand-600 hover:text-brand-700 hover:bg-brand-50 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md"
                 title="Upload CSV"
               >
                 <Upload className="h-5 w-5" />
               </button>
-              <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-white/60 rounded-lg transition-colors">
+              <button className="p-3 text-brand-600 hover:text-brand-700 hover:bg-brand-50 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md">
                 <Users className="h-5 w-5" />
               </button>
               <button 
                 onClick={() => setShowRulesModal(true)}
-                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-white/60 rounded-lg transition-colors"
+                className="p-3 text-brand-600 hover:text-brand-700 hover:bg-brand-50 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md"
                 title="Manage Rules"
               >
                 <Settings className="h-5 w-5" />
               </button>
               <button
                 onClick={handleLogout}
-                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-white/60 rounded-lg transition-colors"
+                className="p-3 text-danger-600 hover:text-danger-700 hover:bg-danger-50 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md"
                 title="Logout"
               >
                 <LogOut className="h-5 w-5" />
@@ -324,13 +324,13 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-      </div>
+      </header>
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-10">
         {/* Dashboard Section */}
         <>
           {/* Tiles */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <section className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
             <StatCard
               title="Income"
               amount={formatCurrency(pageData.tiles.incomeCents)}
@@ -349,14 +349,14 @@ export default function Dashboard() {
               color={pageData.tiles.netCents >= 0 ? 'green' : 'red'}
               icon={PiggyBank}
             />
-          </div>
+          </section>
 
-            {/* Badges */}
-            <div className="flex space-x-4 mb-8">
+            {/* Action Badges */}
+            <section className="flex flex-wrap gap-4 mb-12">
               {pageData.counters.uncategorized > 0 && (
                 <button
                   onClick={() => handleFilterClick('uncategorized')}
-                  className="bg-yellow-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-yellow-600 transition-colors"
+                  className="bg-gradient-to-r from-warning-500 to-warning-600 text-white px-6 py-3 rounded-xl text-sm font-semibold hover:from-warning-600 hover:to-warning-700 transition-all duration-200 shadow-soft hover:shadow-medium transform hover:-translate-y-0.5"
                 >
                   Uncategorized ({pageData.counters.uncategorized})
                 </button>
@@ -364,53 +364,53 @@ export default function Dashboard() {
               {pageData.counters.reviewTransfers > 0 && (
                 <button
                   onClick={() => handleFilterClick('reviewTransfers')}
-                  className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-600 transition-colors"
+                  className="bg-gradient-to-r from-accent-500 to-accent-600 text-white px-6 py-3 rounded-xl text-sm font-semibold hover:from-accent-600 hover:to-accent-700 transition-all duration-200 shadow-soft hover:shadow-medium transform hover:-translate-y-0.5"
                 >
                   Review transfers ({pageData.counters.reviewTransfers})
                 </button>
               )}
-            </div>
+            </section>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <section className="grid grid-cols-1 lg:grid-cols-2 gap-10">
               {/* By Category */}
-              <div className="bg-white/70 backdrop-blur rounded-2xl shadow-sm border border-gray-100 animate-fadeIn">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Expenses by Category</h3>
+              <article className="surface-elevated rounded-2xl shadow-soft animate-slideUp p-6">
+                <h3 className="text-xl font-semibold text-brand-900 mb-6">Expenses by Category</h3>
                 <div className="space-y-3">
                   {pageData.byCategory.map((item) => (
-                    <div key={item.category} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
-                      <span className="text-sm font-medium text-gray-700">{item.category}</span>
-                      <span className="font-semibold text-gray-900">{formatCurrency(item.expensesCents)}</span>
+                    <div key={item.category} className="flex justify-between items-center py-3 border-b border-brand-100/50 last:border-b-0 hover:bg-brand-50/30 rounded-lg px-3 -mx-3 transition-colors">
+                      <span className="text-sm font-medium text-brand-700">{item.category}</span>
+                      <span className="font-semibold text-brand-900">{formatCurrency(item.expensesCents)}</span>
                     </div>
                   ))}
                   {pageData.byCategory.length === 0 && (
-                    <div className="text-center text-gray-500 py-4">No expenses this month</div>
+                    <div className="text-center text-brand-500 py-8">No expenses this month</div>
                   )}
                 </div>
-              </div>
+              </article>
               
               {/* By Account */}
-              <div className="bg-white/70 backdrop-blur rounded-2xl shadow-sm border border-gray-100 animate-fadeIn">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">By Account</h3>
-                <div className="space-y-4">
+              <article className="surface-elevated rounded-2xl shadow-soft animate-slideUp p-6">
+                <h3 className="text-xl font-semibold text-brand-900 mb-6">By Account</h3>
+                <div className="space-y-5">
                   {pageData.byAccount.map((item) => (
-                    <div key={item.account} className="p-3 bg-gray-50 rounded-lg">
-                      <div className="font-semibold text-gray-900 mb-2">{item.account}</div>
+                    <div key={item.account} className="p-4 bg-brand-50/50 rounded-xl border border-brand-100/50 hover:bg-brand-50 transition-colors">
+                      <div className="font-semibold text-brand-900 mb-3">{item.account}</div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-green-700 font-medium">
+                        <span className="text-success-700 font-medium">
                           Income: {formatCurrency(item.incomeCents)}
                         </span>
-                        <span className="text-red-700 font-medium">
+                        <span className="text-danger-700 font-medium">
                           Expenses: {formatCurrency(item.expensesCents)}
                         </span>
                       </div>
                     </div>
                   ))}
                   {pageData.byAccount.length === 0 && (
-                    <div className="text-center text-gray-500 py-4">No account data this month</div>
+                    <div className="text-center text-brand-500 py-8">No account data this month</div>
                   )}
                 </div>
-              </div>
-            </div>
+              </article>
+            </section>
         </>
         
         {/* Transactions Section */}
@@ -634,7 +634,7 @@ export default function Dashboard() {
               </div>
             )}
         </div>
-      </div>
+      </main>
       
       {/* Delete Confirmation Modal */}
       {deleteConfirm.show && (
