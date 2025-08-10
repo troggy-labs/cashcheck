@@ -44,7 +44,9 @@ export function detectCSVFormat(csvString: string): Promise<CSVDetectionResult> 
       
       parseString(csvData, { headers: true, maxRows: 1 })
         .on('data', (firstRow: Record<string, string>) => {
+          console.log(`Detection attempt ${attemptIndex + 1} got data:`, Object.keys(firstRow))
           const result = detectCSVFormatFromRow(firstRow)
+          console.log(`Detection result: ${result.provider} (${result.confidence})`)
           if (result.confidence > 0.6) {
             resolve(result)
           } else {
@@ -188,12 +190,22 @@ export function validateDetectedFormat(provider: Provider, csvString: string): P
   return new Promise((resolve) => {
     if (provider === Provider.CHASE) {
       // For Chase, parse normally
+      console.log('Validating CHASE format, CSV length:', csvString.length)
       parseString(csvString, { headers: true, maxRows: 1 })
         .on('data', (firstRow: Record<string, string>) => {
-          resolve(validateChaseHeaders(firstRow))
+          console.log('Chase validation got data:', Object.keys(firstRow))
+          const result = validateChaseHeaders(firstRow)
+          console.log('Chase validation result:', result)
+          resolve(result)
         })
-        .on('error', () => resolve(false))
-        .on('end', () => resolve(false))
+        .on('error', (error) => {
+          console.log('Chase validation error:', error.message)
+          resolve(false)
+        })
+        .on('end', () => {
+          console.log('Chase validation ended with no data')
+          resolve(false)
+        })
     } else if (provider === Provider.VENMO) {
       // For Venmo, skip first 2 rows
       const lines = csvString.split('\n')
