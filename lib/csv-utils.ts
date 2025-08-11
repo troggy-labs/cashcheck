@@ -1,5 +1,4 @@
 import crypto from 'crypto'
-import Currency from 'currency.js'
 
 export const normalizeHeader = (s: string): string => 
   s.toLowerCase().replace(/[^a-z0-9]/g, "")
@@ -11,21 +10,43 @@ export function pickHeader(row: Record<string, string>, candidates: string[]): s
   }
   for (const c of candidates) {
     const k = map.get(normalizeHeader(c))
-    if (k && row[k]) return row[k]
+    if (k !== undefined) return row[k]
   }
   return undefined
 }
 
 export function toCents(s: string | undefined): number {
   if (!s) return 0
-  try {
-    // Use currency.js to parse various currency formats
-    // Handles: "$300.00", "- $300.00", "+ $300.00", "-47.57", "3000.00", etc.
-    return Currency(s).intValue
-  } catch (error) {
-    console.warn(`Failed to parse currency: "${s}"`, error)
-    return 0
+
+  let str = String(s).trim()
+  let sign = 1
+
+  // Parentheses indicate negatives e.g. (100.00)
+  if (str.startsWith('(') && str.endsWith(')')) {
+    sign = -1
+    str = str.slice(1, -1)
   }
+
+  // Trailing minus e.g. 100-
+  if (str.endsWith('-')) {
+    sign = -1
+    str = str.slice(0, -1)
+  }
+
+  // Leading sign characters
+  if (str.startsWith('-')) {
+    sign = -1
+    str = str.slice(1)
+  } else if (str.startsWith('+')) {
+    str = str.slice(1)
+  }
+
+  // Remove currency symbols, commas, spaces, etc.
+  str = str.replace(/[^0-9.]/g, '')
+
+  const n = Number(str)
+  if (isNaN(n)) return 0
+  return Math.round(n * 100) * sign
 }
 
 export function normalizeDesc(s: string): string {
