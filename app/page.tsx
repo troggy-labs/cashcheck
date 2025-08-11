@@ -6,6 +6,7 @@ import { Upload, Settings, LogOut, Users, ChevronLeft, ChevronRight, Trash2, Arr
 import UploadModal from '@/components/UploadModal'
 import StatCard from '@/components/StatCard'
 import RulesModal from '@/components/RulesModal'
+import Checkbox from '@/components/Checkbox'
 
 interface PageData {
   tiles: {
@@ -491,24 +492,20 @@ export default function Dashboard() {
                 <div>
                   <label className="block text-sm font-medium text-brand-700 mb-2">Options</label>
                   <div className="flex flex-col space-y-2">
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={filters.includeTransfers}
-                        onChange={(e) => setFilters(prev => ({ ...prev, includeTransfers: e.target.checked }))}
-                        className="mr-2 text-accent-600 focus:ring-accent-500"
-                      />
-                      <span className="text-sm text-brand-700">Include Transfers</span>
-                    </label>
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={filters.onlyCandidates}
-                        onChange={(e) => setFilters(prev => ({ ...prev, onlyCandidates: e.target.checked }))}
-                        className="mr-2 text-accent-600 focus:ring-accent-500"
-                      />
-                      <span className="text-sm text-brand-700">Review Only</span>
-                    </label>
+                    <Checkbox
+                      checked={filters.includeTransfers}
+                      onChange={(e) => setFilters(prev => ({ ...prev, includeTransfers: e.target.checked }))}
+                      labelClassName="text-sm text-brand-700"
+                    >
+                      Include Transfers
+                    </Checkbox>
+                    <Checkbox
+                      checked={filters.onlyCandidates}
+                      onChange={(e) => setFilters(prev => ({ ...prev, onlyCandidates: e.target.checked }))}
+                      labelClassName="text-sm text-brand-700"
+                    >
+                      Review Only
+                    </Checkbox>
                   </div>
                 </div>
               </div>
@@ -532,11 +529,9 @@ export default function Dashboard() {
                     <thead className="bg-brand-100 border-b border-brand-200">
                       <tr>
                         <th className="px-6 py-4 text-left text-sm font-semibold text-brand-900">
-                          <input
-                            type="checkbox"
+                          <Checkbox
                             checked={transactions.rows.length > 0 && selectedTransactions.size === transactions.rows.length}
                             onChange={(e) => handleSelectAll(e.target.checked)}
-                            className="text-accent-600 focus:ring-accent-500"
                           />
                         </th>
                         <th className="px-6 py-4 text-left text-sm font-semibold text-brand-900">
@@ -563,11 +558,9 @@ export default function Dashboard() {
                       {transactions.rows.map((tx) => (
                         <tr key={tx.id} className="hover:bg-brand-50 transition-colors">
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <input
-                              type="checkbox"
+                            <Checkbox
                               checked={selectedTransactions.has(tx.id)}
                               onChange={(e) => handleSelectTransaction(tx.id, e.target.checked)}
-                              className="text-accent-600 focus:ring-accent-500"
                             />
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-brand-900">
