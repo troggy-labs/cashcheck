@@ -1,43 +1,69 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyPassword, createSessionToken } from '@/lib/auth'
+import { getOrCreateSession, createSessionJWT } from '@/lib/auth'
 import { cookies } from 'next/headers'
 
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
-    const { password } = await request.json()
+    console.log('POST /api/auth/login - Starting session creation...')
     
-    if (!password || typeof password !== 'string') {
-      return NextResponse.json(
-        { error: 'Password is required' },
-        { status: 400 }
-      )
-    }
+    // Create or get existing ephemeral session
+    const { sessionId, token, isNew } = await getOrCreateSession()
+    console.log('Session created/retrieved:', { sessionId, isNew })
     
-    const isValid = await verifyPassword(password)
-    
-    if (!isValid) {
-      return NextResponse.json(
-        { error: 'Invalid password' },
-        { status: 401 }
-      )
-    }
-    
-    const sessionToken = createSessionToken()
+    // Create JWT token for the session
+    const jwtToken = createSessionJWT(sessionId, token)
     const cookieStore = await cookies()
     
-    cookieStore.set('session', sessionToken, {
+    cookieStore.set('session', jwtToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60, // 7 days
+      maxAge: 48 * 60 * 60, // 48 hours
       path: '/'
     })
     
-    return NextResponse.json({ ok: true })
+    console.log('Session cookie set successfully')
+    
+    return NextResponse.json({ 
+      ok: true, 
+      sessionId,
+      isNewSession: isNew 
+    })
   } catch (error) {
-    console.error('Login error:', error)
+    console.error('Session creation error:', error)
+    console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace')
+    return NextResponse.json(
+      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    )
+  }
+}
+
+// Also handle GET requests to create sessions automatically
+export async function GET(request: NextRequest) {
+  try {
+    const { sessionId, token, isNew } = await getOrCreateSession()
+    
+    const jwtToken = createSessionJWT(sessionId, token)
+    const cookieStore = await cookies()
+    
+    cookieStore.set('session', jwtToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 48 * 60 * 60, // 48 hours
+      path: '/'
+    })
+    
+    return NextResponse.json({ 
+      ok: true, 
+      sessionId,
+      isNewSession: isNew 
+    })
+  } catch (error) {
+    console.error('Session creation error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

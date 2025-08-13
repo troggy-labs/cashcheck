@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: finclick
+    name: cashcheck
     env: node
     plan: free
     buildCommand: npm ci && npm run build
@@ -10,7 +10,7 @@ services:
         value: production
       - key: DATABASE_URL
         fromDatabase:
-          name: finclick-db
+          name: cashcheck-db
           property: connectionString
       - key: JWT_SECRET
         generateValue: true
@@ -18,7 +18,7 @@ services:
         generateValue: true
 
 databases:
-  - name: finclick-db
-    databaseName: finclick
-    user: finclick
+  - name: cashcheck-db
+    databaseName: cashcheck
+    user: cashcheck
     plan: free

@@ -7,6 +7,7 @@ import UploadModal from '@/components/UploadModal'
 import StatCard from '@/components/StatCard'
 import RulesModal from '@/components/RulesModal'
 import Checkbox from '@/components/Checkbox'
+import CashCheckLogo from '@/components/CashCheckLogo'
 
 interface PageData {
   tiles: {
@@ -68,6 +69,7 @@ export default function Dashboard() {
   const [pageData, setPageData] = useState<PageData | null>(null)
   const [transactions, setTransactions] = useState<TransactionsResponse | null>(null)
   const [loading, setLoading] = useState(true)
+  const [sessionInitialized, setSessionInitialized] = useState(false)
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [showRulesModal, setShowRulesModal] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<{
@@ -92,6 +94,19 @@ export default function Dashboard() {
       style: 'currency',
       currency: 'USD',
     }).format(cents / 100)
+  }
+  
+  const initializeSession = async () => {
+    try {
+      const response = await fetch('/api/auth/login', { method: 'GET' })
+      if (response.ok) {
+        const data = await response.json()
+        setSessionInitialized(true)
+        console.log('Session initialized:', data.sessionId, data.isNewSession ? '(new)' : '(existing)')
+      }
+    } catch (error) {
+      console.error('Failed to initialize session:', error)
+    }
   }
   
   const fetchPageData = async () => {
@@ -248,22 +263,34 @@ export default function Dashboard() {
     }
   }
   
+  // Initialize session on first load
   useEffect(() => {
+    initializeSession()
+  }, [])
+  
+  // Fetch data when session is ready and month changes
+  useEffect(() => {
+    if (!sessionInitialized) return
+    
     fetchPageData()
     fetchTransactions()
     setSelectedTransactions(new Set()) // Clear selection when month changes
     setLoading(false)
-  }, [currentMonth])
+  }, [currentMonth, sessionInitialized])
   
   useEffect(() => {
+    if (!sessionInitialized) return
+    
     fetchTransactions()
     setSelectedTransactions(new Set()) // Clear selection when filters change
-  }, [filters])
+  }, [filters, sessionInitialized])
   
-  if (loading || !pageData) {
+  if (loading || !sessionInitialized || !pageData) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
+        <div className="text-lg">
+          {!sessionInitialized ? 'Initializing session...' : 'Loading...'}
+        </div>
       </div>
     )
   }
@@ -275,7 +302,7 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-6">
-              <h1 className="text-3xl font-bold tracking-tight text-brand-900">FinClick</h1>
+              <CashCheckLogo size="lg" />
               <nav className="flex items-center space-x-3">
                 <button
                   onClick={() => navigateMonth('prev')}
