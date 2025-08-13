@@ -78,7 +78,7 @@ export default function WelcomeOnboarding({ onUploadClick }: WelcomeOnboardingPr
             <div>
               <h4 className="font-semibold text-blue-900 mb-2">Quick tip:</h4>
               <div className="text-sm text-blue-800 space-y-1">
-                <p><strong>Chase:</strong> Log in to <a href="https://secure.chase.com/web/auth/dashboard#/dashboard/documents/myDocs/index;mode=documents" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">chase.com</a> → Account Activity → Download → CSV format</p>
+                <p><strong>Chase:</strong> Log in to <a href="https://secure.chase.com/web/auth/dashboard#/dashboard/accountDetails/downloadAccountTransactions/index" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">chase.com</a> → Account Activity → Download → CSV format</p>
                 <p><strong>Venmo:</strong> Go to <a href="https://account.venmo.com/statement" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">venmo.com</a> → Settings → Privacy → Export Transaction History</p>
               </div>
             </div>

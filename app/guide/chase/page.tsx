@@ -77,7 +77,7 @@ export default function ChaseGuidePage() {
                   Go to Chase's secure website and sign into your account:
                 </p>
                 <a 
-                  href="https://secure.chase.com/web/auth/dashboard#/dashboard/documents/myDocs/index;mode=documents"
+                  href="https://secure.chase.com/web/auth/dashboard#/dashboard/accountDetails/downloadAccountTransactions/index"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
@@ -86,7 +86,7 @@ export default function ChaseGuidePage() {
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </a>
                 <p className="text-sm text-gray-500 mt-3">
-                  This link takes you directly to the documents section
+                  This link takes you directly to the download transactions section
                 </p>
               </div>
             </div>
