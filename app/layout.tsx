@@ -25,6 +25,24 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {process.env.NODE_ENV === 'production' && (
+          <>
+            <script 
+              async 
+              defer 
+              src="https://scripts.simpleanalyticscdn.com/latest.js"
+            />
+            <noscript>
+              <img
+                src="https://queue.simpleanalyticscdn.com/noscript.gif"
+                alt=""
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            </noscript>
+          </>
+        )}
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}>
         {children}
       </body>

@@ -57,7 +57,7 @@ export default function PrivacyPolicy() {
               <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-6">Usage Information</h3>
               <ul className="list-disc pl-6 space-y-2">
                 <li><strong>Session Data:</strong> Login timestamps and session activity to maintain your secure connection.</li>
-                <li><strong>Analytics:</strong> How you use our features to improve our service (aggregated and anonymized).</li>
+                <li><strong>Analytics:</strong> Basic page views and usage patterns via Simple Analytics (privacy-focused, no personal data collected).</li>
               </ul>
 
               <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-6">Technical Information</h3>
@@ -95,50 +95,12 @@ export default function PrivacyPolicy() {
 
             <section>
               <h2 className="text-2xl font-bold text-gray-900 mb-4">3. Data Security</h2>
-              
-              <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
-                <h3 className="text-lg font-semibold text-green-800 mb-2">🔒 Bank-Level Security</h3>
-                <p className="text-green-700">
-                  We use the same security standards as major financial institutions to protect your data.
-                </p>
-              </div>
 
               <h3 className="text-xl font-semibold text-gray-900 mb-3">Encryption</h3>
               <ul className="list-disc pl-6 space-y-2">
                 <li><strong>In Transit:</strong> All data transmission uses TLS 1.3 encryption</li>
                 <li><strong>At Rest:</strong> Database encryption using AES-256 encryption standards</li>
-                <li><strong>File Uploads:</strong> Encrypted processing and storage of uploaded statements</li>
               </ul>
-
-              <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-6">Access Controls</h3>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>Multi-factor authentication for administrative access</li>
-                <li>Role-based access controls with minimal necessary permissions</li>
-                <li>Regular security audits and penetration testing</li>
-                <li>Automated monitoring for suspicious activity</li>
-              </ul>
-
-              <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-6">Data Isolation</h3>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>Your financial data is isolated in secure, session-specific containers</li>
-                <li>No sharing of data between different user accounts</li>
-                <li>Automatic data purging for inactive sessions</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">4. What We Don&apos;t Do</h2>
-              
-              <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-red-800 mb-3">❌ We Never:</h3>
-                <ul className="list-disc pl-6 space-y-2 text-red-700">
-                  <li><strong>Connect to your bank accounts directly</strong> - You upload files you download yourself</li>
-                  <li><strong>Sell your financial data</strong> - Your transaction data is never shared with third parties</li>
-                  <li><strong>Store banking credentials</strong> - We never ask for or store your banking login information</li>
-                  <li><strong>Share data with advertisers</strong> - Your spending patterns remain completely private</li>
-                  <li><strong>Use your data for marketing</strong> - No targeted ads based on your financial information</li>
-                </ul>
-              </div>
             </section>
 
             <section>
@@ -150,31 +112,6 @@ export default function PrivacyPolicy() {
                 <li><strong>Account History:</strong> Historical data retained for up to 7 years for financial record-keeping purposes</li>
                 <li><strong>Logs:</strong> Security and access logs retained for 90 days</li>
               </ul>
-
-              <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-6">Your Deletion Rights</h3>
-              <ul className="list-disc pl-6 space-y-2">
-                <li><strong>Immediate Deletion:</strong> You can delete your account and all associated data at any time</li>
-                <li><strong>Selective Deletion:</strong> Remove specific transactions, categories, or import files</li>
-                <li><strong>Automatic Cleanup:</strong> Inactive sessions are automatically purged after 48 hours</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">6. Legal Compliance</h2>
-              
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Regulatory Standards</h3>
-              <ul className="list-disc pl-6 space-y-2">
-                <li><strong>CCPA Compliance:</strong> California Consumer Privacy Act rights respected</li>
-                <li><strong>GDPR Compliance:</strong> European data protection standards applied globally</li>
-                <li><strong>SOX Compliance:</strong> Financial data handling meets Sarbanes-Oxley standards</li>
-              </ul>
-
-              <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-6">Legal Disclosures</h3>
-              <p>
-                We may disclose information only when required by law, court order, or to protect 
-                the rights, property, or safety of CashCheck, our users, or others. Any such 
-                disclosure will be limited to the minimum necessary information.
-              </p>
             </section>
 
             <section>
@@ -185,7 +122,6 @@ export default function PrivacyPolicy() {
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">Access Rights</h3>
                   <ul className="list-disc pl-6 space-y-1 text-sm">
                     <li>View all your stored data</li>
-                    <li>Download your transaction history</li>
                     <li>See how your data is categorized</li>
                   </ul>
                 </div>
@@ -195,25 +131,13 @@ export default function PrivacyPolicy() {
                   <ul className="list-disc pl-6 space-y-1 text-sm">
                     <li>Modify or correct your data</li>
                     <li>Delete specific transactions</li>
-                    <li>Export your data in standard formats</li>
                   </ul>
                 </div>
                 
                 <div className="border border-gray-200 rounded-lg p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">Deletion Rights</h3>
                   <ul className="list-disc pl-6 space-y-1 text-sm">
-                    <li>Delete your entire account</li>
-                    <li>Remove imported files</li>
                     <li>Clear transaction history</li>
-                  </ul>
-                </div>
-                
-                <div className="border border-gray-200 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Portability Rights</h3>
-                  <ul className="list-disc pl-6 space-y-1 text-sm">
-                    <li>Export data in CSV format</li>
-                    <li>Download categorization rules</li>
-                    <li>Transfer data to other services</li>
                   </ul>
                 </div>
               </div>
@@ -232,30 +156,27 @@ export default function PrivacyPolicy() {
                 <li><strong>Functionality:</strong> Remembering your preferences during your session</li>
               </ul>
 
-              <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-6">No Tracking</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-6">Simple Analytics</h3>
+              <p>
+                We use Simple Analytics for basic website analytics, which:
+              </p>
+              <ul className="list-disc pl-6 space-y-2 mt-2">
+                <li><strong>No cookies:</strong> Does not use cookies or store personal data</li>
+                <li><strong>Privacy-first:</strong> GDPR, CCPA, and PECR compliant</li>
+                <li><strong>Anonymous:</strong> Only collects aggregated page view data</li>
+                <li><strong>No tracking:</strong> Cannot identify individual users</li>
+              </ul>
+
+              <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-6">No Invasive Tracking</h3>
               <p>
                 We do <strong>not</strong> use:
               </p>
               <ul className="list-disc pl-6 space-y-2 mt-2">
-                <li>Third-party analytics cookies (like Google Analytics)</li>
+                <li>Google Analytics or similar tracking tools</li>
                 <li>Advertising or marketing cookies</li>
                 <li>Social media tracking pixels</li>
                 <li>Cross-site tracking technologies</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">9. Changes to This Policy</h2>
-              
-              <p>
-                We may update this Privacy Policy to reflect changes in our practices or legal requirements. 
-                When we make material changes:
-              </p>
-              <ul className="list-disc pl-6 space-y-2 mt-4">
-                <li>We&apos;ll notify you via email (if you&apos;ve provided one)</li>
-                <li>We&apos;ll display a prominent notice in the application</li>
-                <li>We&apos;ll update the &quot;Last Updated&quot; date at the top of this policy</li>
-                <li>Continued use of our service constitutes acceptance of the updated policy</li>
+                <li>User fingerprinting or behavioral tracking</li>
               </ul>
             </section>
 
@@ -270,13 +191,6 @@ export default function PrivacyPolicy() {
                   <p><strong>Email:</strong> privacy@cashcheck.com</p>
                   <p><strong>Subject Line:</strong> &quot;Privacy Policy Question&quot;</p>
                   <p><strong>Response Time:</strong> Within 48 hours for privacy-related inquiries</p>
-                </div>
-                
-                <div className="mt-6 pt-6 border-t border-gray-300">
-                  <p className="text-sm text-gray-600">
-                    For immediate account deletion or data removal requests, you can also use the 
-                    &quot;Delete Account&quot; feature in your CashCheck dashboard.
-                  </p>
                 </div>
               </div>
             </section>
