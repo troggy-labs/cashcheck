@@ -8,6 +8,7 @@ import StatCard from '@/components/StatCard'
 import RulesModal from '@/components/RulesModal'
 import Checkbox from '@/components/Checkbox'
 import CashCheckLogo from '@/components/CashCheckLogo'
+import WelcomeOnboarding from '@/components/WelcomeOnboarding'
 
 interface PageData {
   tiles: {
@@ -68,8 +69,10 @@ export default function Dashboard() {
   
   const [pageData, setPageData] = useState<PageData | null>(null)
   const [transactions, setTransactions] = useState<TransactionsResponse | null>(null)
+  const [hasAnyData, setHasAnyData] = useState<boolean | null>(null)
   const [loading, setLoading] = useState(true)
   const [sessionInitialized, setSessionInitialized] = useState(false)
+  const [hasAutoNavigated, setHasAutoNavigated] = useState(false)
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [showRulesModal, setShowRulesModal] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<{
@@ -144,6 +147,33 @@ export default function Dashboard() {
       console.error('Failed to fetch transactions:', error)
     }
   }
+
+  const checkHasAnyData = async () => {
+    try {
+      const response = await fetch('/api/has-data')
+      if (response.ok) {
+        const data = await response.json()
+        setHasAnyData(data.hasTransactions)
+      }
+    } catch (error) {
+      console.error('Failed to check user data:', error)
+    }
+  }
+
+  const navigateToRecentMonth = async () => {
+    try {
+      const response = await fetch('/api/recent-month')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.hasTransactions && data.recentMonth) {
+          setHasAutoNavigated(true) // Mark that we've auto-navigated
+          setCurrentMonth(data.recentMonth)
+        }
+      }
+    } catch (error) {
+      console.error('Failed to get recent month:', error)
+    }
+  }
   
   const handleLogout = async () => {
     try {
@@ -162,10 +192,16 @@ export default function Dashboard() {
     }
   }
   
-  const handleUploadSuccess = () => {
+  const handleUploadSuccess = async () => {
     // Refresh page data after successful upload
-    fetchPageData()
-    fetchTransactions()
+    await Promise.all([
+      fetchPageData(),
+      fetchTransactions(),
+      checkHasAnyData()
+    ])
+    
+    // Reset auto-navigation flag so it can trigger again after upload
+    setHasAutoNavigated(false)
   }
   
   const navigateMonth = (direction: 'prev' | 'next') => {
@@ -272,10 +308,17 @@ export default function Dashboard() {
   useEffect(() => {
     if (!sessionInitialized) return
     
-    fetchPageData()
-    fetchTransactions()
-    setSelectedTransactions(new Set()) // Clear selection when month changes
-    setLoading(false)
+    const loadData = async () => {
+      await Promise.all([
+        fetchPageData(),
+        fetchTransactions(),
+        checkHasAnyData()
+      ])
+      setSelectedTransactions(new Set()) // Clear selection when month changes
+      setLoading(false)
+    }
+    
+    loadData()
   }, [currentMonth, sessionInitialized])
   
   useEffect(() => {
@@ -284,8 +327,21 @@ export default function Dashboard() {
     fetchTransactions()
     setSelectedTransactions(new Set()) // Clear selection when filters change
   }, [filters, sessionInitialized])
+
+  // Navigate to recent month if current month has no transactions but user has data elsewhere
+  useEffect(() => {
+    if (!sessionInitialized || !transactions || hasAnyData === null || loading || hasAutoNavigated) return
+    
+    // Only navigate if:
+    // 1. User has data somewhere (hasAnyData === true)
+    // 2. Current month view is empty (transactions.total === 0)
+    // 3. We haven't already auto-navigated in this session
+    if (hasAnyData === true && transactions.total === 0) {
+      navigateToRecentMonth()
+    }
+  }, [sessionInitialized, transactions, hasAnyData, loading, hasAutoNavigated])
   
-  if (loading || !sessionInitialized || !pageData) {
+  if (loading || !sessionInitialized || !pageData || hasAnyData === null) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-lg">
@@ -294,6 +350,9 @@ export default function Dashboard() {
       </div>
     )
   }
+
+  // Check if user has no transactions (show welcome screen)
+  const hasNoTransactions = hasAnyData === false
   
   return (
     <div className="min-h-screen">
@@ -303,25 +362,27 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-6">
               <CashCheckLogo size="lg" />
-              <nav className="flex items-center space-x-3">
-                <button
-                  onClick={() => navigateMonth('prev')}
-                  className="p-2 text-brand-600 hover:text-brand-900 hover:bg-brand-50 rounded-lg transition-all duration-200"
-                  title="Previous month"
-                >
-                  <ChevronLeft className="h-5 w-5" />
-                </button>
-                <div className="px-4 py-2 text-xl font-semibold text-brand-900 min-w-[200px] text-center">
-                  {formatMonthDisplay(currentMonth)}
-                </div>
-                <button
-                  onClick={() => navigateMonth('next')}
-                  className="p-2 text-brand-600 hover:text-brand-900 hover:bg-brand-50 rounded-lg transition-all duration-200"
-                  title="Next month"
-                >
-                  <ChevronRight className="h-5 w-5" />
-                </button>
-              </nav>
+              {!hasNoTransactions && (
+                <nav className="flex items-center space-x-3">
+                  <button
+                    onClick={() => navigateMonth('prev')}
+                    className="p-2 text-brand-600 hover:text-brand-900 hover:bg-brand-50 rounded-lg transition-all duration-200"
+                    title="Previous month"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  <div className="px-4 py-2 text-xl font-semibold text-brand-900 min-w-[200px] text-center">
+                    {formatMonthDisplay(currentMonth)}
+                  </div>
+                  <button
+                    onClick={() => navigateMonth('next')}
+                    className="p-2 text-brand-600 hover:text-brand-900 hover:bg-brand-50 rounded-lg transition-all duration-200"
+                    title="Next month"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+                </nav>
+              )}
             </div>
             
             <div className="flex items-center space-x-3">
@@ -355,29 +416,32 @@ export default function Dashboard() {
       </header>
       
       <main className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-10">
-        {/* Dashboard Section */}
-        <>
-          {/* Tiles */}
-          <section className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            <StatCard
-              title="Income"
-              amount={formatCurrency(pageData.tiles.incomeCents)}
-              color="success"
-              icon={ArrowUpRight}
-            />
-            <StatCard
-              title="Expenses"
-              amount={formatCurrency(pageData.tiles.expenseCents)}
-              color="danger"
-              icon={ArrowDownRight}
-            />
-            <StatCard
-              title="Net"
-              amount={formatCurrency(pageData.tiles.netCents)}
-              color={pageData.tiles.netCents >= 0 ? 'success' : 'danger'}
-              icon={PiggyBank}
-            />
-          </section>
+        {hasNoTransactions ? (
+          <WelcomeOnboarding onUploadClick={() => setShowUploadModal(true)} />
+        ) : (
+          <>
+            {/* Dashboard Section */}
+            {/* Tiles */}
+            <section className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+              <StatCard
+                title="Income"
+                amount={formatCurrency(pageData.tiles.incomeCents)}
+                color="success"
+                icon={ArrowUpRight}
+              />
+              <StatCard
+                title="Expenses"
+                amount={formatCurrency(pageData.tiles.expenseCents)}
+                color="danger"
+                icon={ArrowDownRight}
+              />
+              <StatCard
+                title="Net"
+                amount={formatCurrency(pageData.tiles.netCents)}
+                color={pageData.tiles.netCents >= 0 ? 'success' : 'danger'}
+                icon={PiggyBank}
+              />
+            </section>
 
             {/* Action Badges */}
             <section className="flex flex-wrap gap-4 mb-12">
@@ -439,10 +503,9 @@ export default function Dashboard() {
                 </div>
               </article>
             </section>
-        </>
-        
-        {/* Transactions Section */}
-        <div className="space-y-6 mt-12">
+
+            {/* Transactions Section */}
+            <div className="space-y-6 mt-12">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-brand-900">Transactions</h2>
             <div className="flex items-center space-x-3">
@@ -653,7 +716,9 @@ export default function Dashboard() {
                 )}
               </div>
             )}
-        </div>
+            </div>
+          </>
+        )}
       </main>
       
       {/* Delete Confirmation Modal */}

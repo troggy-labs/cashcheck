@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
+import { getSessionFromRequest } from '@/lib/auth'
 
 const prisma = new PrismaClient()
 
@@ -7,6 +8,15 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
+    // Get session
+    const sessionData = getSessionFromRequest(request)
+    if (!sessionData) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
     const url = new URL(request.url)
     const month = url.searchParams.get('month')
     
@@ -32,6 +42,7 @@ export async function GET(request: NextRequest) {
         SUM(CASE WHEN NOT "isTransfer" THEN "amountCents" ELSE 0 END) AS "netCents"
       FROM "Transaction"
       WHERE date_trunc('month', "postedDate") = date_trunc('month', ${startDate}::date)
+        AND "sessionId" = ${sessionData.sessionId}
     `
     
     const tiles = {
@@ -53,6 +64,7 @@ export async function GET(request: NextRequest) {
         AND NOT t."isTransfer"
         AND date_trunc('month', t."postedDate") = date_trunc('month', ${startDate}::date)
         AND t."amountCents" < 0
+        AND t."sessionId" = ${sessionData.sessionId}
       GROUP BY c.name
       ORDER BY "expensesCents" DESC
     `
@@ -74,6 +86,7 @@ export async function GET(request: NextRequest) {
       FROM "Transaction" t
       JOIN "Account" a ON a.id = t."accountId"
       WHERE date_trunc('month', t."postedDate") = date_trunc('month', ${startDate}::date)
+        AND t."sessionId" = ${sessionData.sessionId}
       GROUP BY a."displayName"
       ORDER BY a."displayName"
     `
@@ -87,6 +100,7 @@ export async function GET(request: NextRequest) {
     // Get counters
     const uncategorizedCount = await prisma.transaction.count({
       where: {
+        sessionId: sessionData.sessionId,
         categoryId: null,
         isTransfer: false,
         postedDate: { gte: startDate, lte: endDate }
@@ -95,6 +109,7 @@ export async function GET(request: NextRequest) {
     
     const reviewTransfersCount = await prisma.transaction.count({
       where: {
+        sessionId: sessionData.sessionId,
         transferCandidate: true,
         isTransfer: false,
         postedDate: { gte: startDate, lte: endDate }
@@ -111,6 +126,9 @@ export async function GET(request: NextRequest) {
     
     // Get accounts for dropdowns
     const accounts = await prisma.account.findMany({
+      where: {
+        sessionId: sessionData.sessionId
+      },
       orderBy: { displayName: 'asc' }
     })
     
