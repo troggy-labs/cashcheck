@@ -23,4 +23,4 @@ databases:
   - name: cashcheck-db
     databaseName: cashcheck
     user: cashcheck
-    plan: free
+    
