@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { getOrCreateSession, createSessionJWT } from '@/lib/auth'
 import { cookies } from 'next/headers'
 
 export const dynamic = 'force-dynamic'
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     console.log('POST /api/auth/login - Starting session creation...')
     
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
 }
 
 // Also handle GET requests to create sessions automatically
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const { sessionId, token, isNew } = await getOrCreateSession()
     

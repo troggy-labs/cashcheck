@@ -1,13 +1,27 @@
 import { PrismaClient, Provider, AccountType, CategoryKind, Direction, RuleMatchType } from '@prisma/client'
+import { randomBytes } from 'crypto'
 
 const prisma = new PrismaClient()
 
 async function main() {
   console.log('🌱 Starting seed...')
 
+  // Create a session first
+  const sessionToken = randomBytes(32).toString('hex')
+  const session = await prisma.session.create({
+    data: {
+      token: sessionToken,
+      expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000), // 48 hours from now
+      lastActive: new Date()
+    }
+  })
+
+  console.log('✅ Created session')
+
   // Create accounts
   const chaseAccount = await prisma.account.create({
     data: {
+      sessionId: session.id,
       provider: Provider.CHASE,
       type: AccountType.CHECKING,
       displayName: 'Chase Checking',
@@ -17,6 +31,7 @@ async function main() {
 
   const venmoAccount = await prisma.account.create({
     data: {
+      sessionId: session.id,
       provider: Provider.VENMO,
       type: AccountType.WALLET,
       displayName: 'Venmo',
@@ -58,7 +73,12 @@ async function main() {
   
   const createdCategories = await Promise.all(
     allCategories.map(cat => 
-      prisma.category.create({ data: cat })
+      prisma.category.create({ 
+        data: {
+          ...cat,
+          sessionId: session.id
+        }
+      })
     )
   )
 
@@ -100,7 +120,12 @@ async function main() {
 
   await Promise.all(
     rules.map(rule => 
-      prisma.categoryRule.create({ data: rule })
+      prisma.categoryRule.create({ 
+        data: {
+          ...rule,
+          sessionId: session.id
+        }
+      })
     )
   )
 

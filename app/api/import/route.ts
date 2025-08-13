@@ -7,6 +7,7 @@ import { parseVenmoRow } from '@/lib/parsers/venmo'
 import { categorizeBatch } from '@/lib/categorization'
 import { processTransferDetection } from '@/lib/transfer-detection'
 import { detectCSVFormat, validateDetectedFormat } from '@/lib/csv-detector'
+import { getSessionFromRequest } from '@/lib/auth'
 
 const prisma = new PrismaClient()
 
@@ -14,6 +15,14 @@ export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
+    // Get session
+    const sessionData = getSessionFromRequest(request)
+    if (!sessionData) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
     const formData = await request.formData()
     const file = formData.get('file') as File
     
@@ -58,7 +67,12 @@ export async function POST(request: NextRequest) {
     
     // Check if file already processed
     const existingFile = await prisma.importFile.findUnique({
-      where: { sha256 }
+      where: { 
+        sessionId_sha256: {
+          sessionId: sessionData.sessionId,
+          sha256
+        }
+      }
     })
     
     if (existingFile && existingFile.status === FileStatus.PROCESSED) {
@@ -90,6 +104,7 @@ export async function POST(request: NextRequest) {
       // Create new ImportFile record
       importFile = await prisma.importFile.create({
         data: {
+          sessionId: sessionData.sessionId,
           source: detectedProvider,
           filename: file.name,
           sha256,
@@ -102,6 +117,7 @@ export async function POST(request: NextRequest) {
       // Get account for the detected provider
       const account = await prisma.account.findFirst({
         where: {
+          sessionId: sessionData.sessionId,
           provider: detectedProvider
         }
       })
@@ -195,6 +211,7 @@ export async function POST(request: NextRequest) {
         try {
           await prisma.transaction.create({
             data: {
+              sessionId: sessionData.sessionId,
               source: tx.source,
               externalId: tx.externalId,
               accountId: tx.accountId,
@@ -240,6 +257,7 @@ export async function POST(request: NextRequest) {
       
       let totalTransferCandidates = 0
       for (const month of months) {
+        // TODO: Update processTransferDetection to accept sessionId for proper session scoping
         const result = await processTransferDetection(month)
         totalTransferCandidates += result.candidates
       }

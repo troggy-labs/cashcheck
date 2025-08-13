@@ -1,11 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient, Direction, RuleMatchType } from '@prisma/client'
+import { getSession } from '@/lib/auth'
 
 const prisma = new PrismaClient()
 
 export async function GET() {
   try {
+    const sessionData = await getSession()
+    if (!sessionData) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
     const rules = await prisma.categoryRule.findMany({
+      where: { sessionId: sessionData.sessionId },
       include: {
         category: true,
         account: true
@@ -43,6 +53,13 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const sessionData = await getSession()
+    if (!sessionData) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
     const body = await request.json()
     
     const {
@@ -80,6 +97,7 @@ export async function POST(request: NextRequest) {
     
     const rule = await prisma.categoryRule.create({
       data: {
+        sessionId: sessionData.sessionId,
         pattern,
         matchType,
         direction,
