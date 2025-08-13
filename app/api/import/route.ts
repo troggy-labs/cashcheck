@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient, Provider, FileStatus } from '@prisma/client'
+import { PrismaClient, Provider, FileStatus, AccountType } from '@prisma/client'
 import crypto from 'crypto'
 import { parseString } from 'fast-csv'
 import { parseChaseRow } from '@/lib/parsers/chase'
@@ -114,8 +114,8 @@ export async function POST(request: NextRequest) {
     }
     
     try {
-      // Get account for the detected provider
-      const account = await prisma.account.findFirst({
+      // Get or create account for the detected provider
+      let account = await prisma.account.findFirst({
         where: {
           sessionId: sessionData.sessionId,
           provider: detectedProvider
@@ -123,7 +123,19 @@ export async function POST(request: NextRequest) {
       })
       
       if (!account) {
-        throw new Error(`No account found for provider ${detectedProvider}`)
+        // Create account automatically for this session
+        const displayName = detectedProvider === Provider.CHASE ? 'Chase Checking' : 'Venmo'
+        const accountType = detectedProvider === Provider.CHASE ? AccountType.CHECKING : AccountType.WALLET
+        
+        account = await prisma.account.create({
+          data: {
+            sessionId: sessionData.sessionId,
+            provider: detectedProvider,
+            type: accountType,
+            displayName: displayName,
+            currency: 'USD'
+          }
+        })
       }
       
       // Get timezone setting
