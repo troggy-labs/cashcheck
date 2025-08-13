@@ -12,10 +12,12 @@ services:
         fromDatabase:
           name: cashcheck-db
           property: connectionString
-      - key: JWT_SECRET
+      - key: SESSION_SECRET
         generateValue: true
       - key: ADMIN_PASSWORD
         generateValue: true
+      - key: APP_TIMEZONE
+        value: America/Los_Angeles
 
 databases:
   - name: cashcheck-db
