@@ -213,7 +213,7 @@ export async function POST(request: NextRequest) {
       }
       
       // Categorize transactions
-      const categorizedTransactions = await categorizeBatch(parsedTransactions)
+      const categorizedTransactions = await categorizeBatch(parsedTransactions, sessionData.sessionId)
       
       // Insert transactions with conflict ignore
       let imported = 0
