@@ -3,7 +3,7 @@ services:
     name: cashcheck
     env: node
     plan: starter
-    buildCommand: npm ci && npm run build
+    buildCommand: npm ci && npm run build && npx tsx scripts/seed-demo.ts
     startCommand: npm start
     envVars:
       - key: NODE_ENV
