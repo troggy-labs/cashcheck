@@ -45,6 +45,19 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
   
+  // Allow access to demo page and demo API calls
+  if (pathname === '/demo' || 
+      pathname.startsWith('/landing') || 
+      pathname.startsWith('/privacy') ||
+      pathname.startsWith('/guide/')) {
+    return NextResponse.next()
+  }
+  
+  // Allow demo API calls (check for demo=true parameter)
+  if (pathname.startsWith('/api/') && request.nextUrl.searchParams.get('demo') === 'true') {
+    return NextResponse.next()
+  }
+  
   // Allow access to static files
   if (pathname.startsWith('/_next/') || pathname.startsWith('/favicon.ico')) {
     return NextResponse.next()

@@ -8,16 +8,25 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
-    // Get session
-    const sessionData = getSessionFromRequest(request)
-    if (!sessionData) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+    const url = new URL(request.url)
+    const isDemo = url.searchParams.get('demo') === 'true'
+    
+    // Get session ID - use demo session for demo mode
+    let sessionId: string
+    
+    if (isDemo) {
+      sessionId = 'demo-session-id'
+    } else {
+      const sessionData = getSessionFromRequest(request)
+      if (!sessionData) {
+        return NextResponse.json(
+          { error: 'Unauthorized' },
+          { status: 401 }
+        )
+      }
+      sessionId = sessionData.sessionId
     }
 
-    const url = new URL(request.url)
     const month = url.searchParams.get('month')
     
     if (!month || !/^\d{4}-\d{2}$/.test(month)) {
@@ -42,7 +51,7 @@ export async function GET(request: NextRequest) {
         SUM(CASE WHEN NOT "isTransfer" THEN "amountCents" ELSE 0 END) AS "netCents"
       FROM "Transaction"
       WHERE date_trunc('month', "postedDate") = date_trunc('month', ${startDate}::date)
-        AND "sessionId" = ${sessionData.sessionId}
+        AND "sessionId" = ${sessionId}
     `
     
     const tiles = {
@@ -64,7 +73,7 @@ export async function GET(request: NextRequest) {
         AND NOT t."isTransfer"
         AND date_trunc('month', t."postedDate") = date_trunc('month', ${startDate}::date)
         AND t."amountCents" < 0
-        AND t."sessionId" = ${sessionData.sessionId}
+        AND t."sessionId" = ${sessionId}
       GROUP BY c.name
       ORDER BY "expensesCents" DESC
     `
@@ -86,7 +95,7 @@ export async function GET(request: NextRequest) {
       FROM "Transaction" t
       JOIN "Account" a ON a.id = t."accountId"
       WHERE date_trunc('month', t."postedDate") = date_trunc('month', ${startDate}::date)
-        AND t."sessionId" = ${sessionData.sessionId}
+        AND t."sessionId" = ${sessionId}
       GROUP BY a."displayName"
       ORDER BY a."displayName"
     `
@@ -100,7 +109,7 @@ export async function GET(request: NextRequest) {
     // Get counters
     const uncategorizedCount = await prisma.transaction.count({
       where: {
-        sessionId: sessionData.sessionId,
+        sessionId: sessionId,
         categoryId: null,
         isTransfer: false,
         postedDate: { gte: startDate, lte: endDate }
@@ -109,7 +118,7 @@ export async function GET(request: NextRequest) {
     
     const reviewTransfersCount = await prisma.transaction.count({
       where: {
-        sessionId: sessionData.sessionId,
+        sessionId: sessionId,
         transferCandidate: true,
         isTransfer: false,
         postedDate: { gte: startDate, lte: endDate }
@@ -127,7 +136,7 @@ export async function GET(request: NextRequest) {
     // Get accounts for dropdowns
     const accounts = await prisma.account.findMany({
       where: {
-        sessionId: sessionData.sessionId
+        sessionId: sessionId
       },
       orderBy: { displayName: 'asc' }
     })

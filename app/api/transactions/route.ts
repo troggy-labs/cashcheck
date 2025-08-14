@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient, Prisma } from '@prisma/client'
+import { getSessionFromRequest } from '@/lib/auth'
 
 const prisma = new PrismaClient()
 
@@ -53,6 +54,24 @@ export async function DELETE(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const url = new URL(request.url)
+    const isDemo = url.searchParams.get('demo') === 'true'
+    
+    // Get session ID - use demo session for demo mode
+    let sessionId: string
+    
+    if (isDemo) {
+      sessionId = 'demo-session-id'
+    } else {
+      const sessionData = getSessionFromRequest(request)
+      if (!sessionData) {
+        return NextResponse.json(
+          { error: 'Unauthorized' },
+          { status: 401 }
+        )
+      }
+      sessionId = sessionData.sessionId
+    }
+    
     const month = url.searchParams.get('month')
     const accountId = url.searchParams.get('accountId')
     const categoryId = url.searchParams.get('categoryId')
@@ -74,6 +93,7 @@ export async function GET(request: NextRequest) {
     
     // Build where clause - proper date range for the specified month
     const where: Prisma.TransactionWhereInput = {
+      sessionId: sessionId,
       postedDate: {
         gte: new Date(year, monthNum - 1, 1), // Start of month (monthNum-1 because JS months are 0-indexed)
         lt: new Date(year, monthNum, 1) // Start of next month
