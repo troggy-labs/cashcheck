@@ -8,12 +8,14 @@ export interface TransactionWithCategory extends ParsedTransaction {
 }
 
 export async function categorizeTransaction(
-  transaction: ParsedTransaction & { isFeeTx?: boolean }
+  transaction: ParsedTransaction & { isFeeTx?: boolean },
+  sessionId: string
 ): Promise<string | null> {
   // If this is a Venmo fee transaction, always categorize as "Fees"
   if (transaction.isFeeTx) {
     const feesCategory = await prisma.category.findFirst({
       where: { 
+        sessionId: sessionId,
         name: 'Fees',
         kind: CategoryKind.EXPENSE
       }
@@ -21,9 +23,12 @@ export async function categorizeTransaction(
     return feesCategory?.id || null
   }
   
-  // Get all enabled rules sorted by priority
+  // Get all enabled rules sorted by priority for this session
   const rules = await prisma.categoryRule.findMany({
-    where: { enabled: true },
+    where: { 
+      sessionId: sessionId,
+      enabled: true 
+    },
     orderBy: { priority: 'asc' },
     include: { category: true }
   })
@@ -36,7 +41,7 @@ export async function categorizeTransaction(
   }
   
   // Apply defaults if no rule matched
-  return await getDefaultCategory(transaction.amountCents)
+  return await getDefaultCategory(transaction.amountCents, sessionId)
 }
 
 function matchesRule(transaction: ParsedTransaction, rule: CategoryRule): boolean {
@@ -67,21 +72,25 @@ function matchesRule(transaction: ParsedTransaction, rule: CategoryRule): boolea
   return false
 }
 
-async function getDefaultCategory(amountCents: number): Promise<string | null> {
-  const categoryName = amountCents > 0 ? 'Income: Misc' : 'Expense: Misc'
+async function getDefaultCategory(amountCents: number, sessionId: string): Promise<string | null> {
+  const categoryName = amountCents > 0 ? 'Income' : 'Uncategorized'
   const category = await prisma.category.findFirst({
-    where: { name: categoryName }
+    where: { 
+      sessionId: sessionId,
+      name: categoryName 
+    }
   })
   return category?.id || null
 }
 
 export async function categorizeBatch(
-  transactions: (ParsedTransaction & { isFeeTx?: boolean })[]
+  transactions: (ParsedTransaction & { isFeeTx?: boolean })[],
+  sessionId: string
 ): Promise<(TransactionWithCategory)[]> {
   const results: TransactionWithCategory[] = []
   
   for (const transaction of transactions) {
-    const categoryId = await categorizeTransaction(transaction)
+    const categoryId = await categorizeTransaction(transaction, sessionId)
     results.push({
       ...transaction,
       categoryId
