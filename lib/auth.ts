@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { NextRequest } from 'next/server'
 import { randomBytes } from 'crypto'
 import { PrismaClient } from '@prisma/client'
+import { initializeSessionDefaults } from './session-setup'
 
 const SESSION_SECRET = process.env.SESSION_SECRET || 'fallback-secret'
 const SESSION_DURATION_HOURS = 48 // 48 hours session duration
@@ -38,6 +39,9 @@ export async function createEphemeralSession(): Promise<{ sessionId: string; tok
       lastActive: new Date()
     }
   })
+  
+  // Initialize default categories and rules for the new session
+  await initializeSessionDefaults(session.id)
   
   return {
     sessionId: session.id,

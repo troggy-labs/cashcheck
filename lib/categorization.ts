@@ -23,7 +23,15 @@ export async function categorizeTransaction(
     return feesCategory?.id || null
   }
   
-  // Get all enabled rules sorted by priority for this session
+  // First priority: Use CSV category if available and mappable
+  if (transaction.csvCategory) {
+    const mappedCategory = await mapCsvCategory(transaction.csvCategory, sessionId)
+    if (mappedCategory) {
+      return mappedCategory
+    }
+  }
+  
+  // Second priority: Get all enabled rules sorted by priority for this session
   const rules = await prisma.categoryRule.findMany({
     where: { 
       sessionId: sessionId,
@@ -72,8 +80,91 @@ function matchesRule(transaction: ParsedTransaction, rule: CategoryRule): boolea
   return false
 }
 
+// Map Chase CSV categories to our internal categories
+async function mapCsvCategory(csvCategory: string, sessionId: string): Promise<string | null> {
+  // Create a mapping of Chase categories to our categories
+  const categoryMappings: Record<string, string[]> = {
+    // Food & Dining
+    'Food & Drink': ['Dining', 'Food & Dining'],
+    'Restaurants': ['Dining', 'Food & Dining'],
+    'Fast Food': ['Dining', 'Food & Dining'], 
+    'Coffee Shop': ['Dining', 'Food & Dining'],
+    'Bar': ['Dining', 'Food & Dining'],
+    
+    // Shopping
+    'Shopping': ['Shopping'],
+    'Clothing': ['Shopping'],
+    'Electronics': ['Shopping'],
+    'Home': ['Shopping'],
+    'Personal': ['Shopping'],
+    
+    // Transportation
+    'Gas': ['Transport', 'Transportation'],
+    'Transportation': ['Transport', 'Transportation'],
+    'Public Transport': ['Transport', 'Transportation'],
+    'Uber': ['Transport', 'Transportation'],
+    'Lyft': ['Transport', 'Transportation'],
+    'Travel': ['Travel'],
+    
+    // Bills & Utilities
+    'Bills & Utilities': ['Utilities'],
+    'Phone': ['Utilities'],
+    'Internet': ['Utilities'],
+    'Cable': ['Utilities'],
+    'Electric': ['Utilities'],
+    'Gas & Electric': ['Utilities'],
+    'Water': ['Utilities'],
+    'Rent': ['Rent'],
+    
+    // Entertainment
+    'Entertainment': ['Entertainment'],
+    'Movies': ['Entertainment'],
+    'Music': ['Entertainment'],
+    'Games': ['Entertainment'],
+    
+    // Health
+    'Health': ['Health'],
+    'Medical': ['Health'],
+    'Pharmacy': ['Health'],
+    
+    // Groceries
+    'Groceries': ['Groceries'],
+    'Grocery': ['Groceries'],
+    
+    // Income
+    'Paycheck': ['Salary', 'Income: Misc'],
+    'Deposit': ['Salary', 'Refunds', 'Income: Misc'],
+    
+    // Fees
+    'Fees': ['Fees'],
+    'ATM': ['Fees'],
+    'Service Charge': ['Fees'],
+  }
+  
+  // Find potential category names to try
+  const potentialCategoryNames = categoryMappings[csvCategory] || [csvCategory]
+  
+  // Try to find matching category in our database
+  for (const categoryName of potentialCategoryNames) {
+    const category = await prisma.category.findFirst({
+      where: {
+        sessionId: sessionId,
+        name: categoryName
+      }
+    })
+    
+    if (category) {
+      return category.id
+    }
+  }
+  
+  return null // No mapping found
+}
+
 async function getDefaultCategory(amountCents: number, sessionId: string): Promise<string | null> {
-  const categoryName = amountCents > 0 ? 'Income' : 'Uncategorized'
+  const categoryName = amountCents > 0 ? 'Income: Misc' : null // Let uncategorized transactions remain null
+  if (!categoryName) return null
+  
   const category = await prisma.category.findFirst({
     where: { 
       sessionId: sessionId,

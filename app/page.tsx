@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Upload, Settings, LogOut, Users, ChevronLeft, ChevronRight, Trash2, ArrowUpRight, ArrowDownRight, PiggyBank } from 'lucide-react'
+import { Upload, Settings, LogOut, ChevronLeft, ChevronRight, Trash2, ArrowUpRight, ArrowDownRight, PiggyBank } from 'lucide-react'
 import UploadModal from '@/components/UploadModal'
 import StatCard from '@/components/StatCard'
 import RulesModal from '@/components/RulesModal'
@@ -392,9 +392,6 @@ export default function Dashboard() {
                 title="Upload CSV"
               >
                 <Upload className="h-5 w-5" />
-              </button>
-              <button className="p-3 text-brand-600 hover:text-brand-700 hover:bg-brand-50 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md">
-                <Users className="h-5 w-5" />
               </button>
               <button 
                 onClick={() => setShowRulesModal(true)}

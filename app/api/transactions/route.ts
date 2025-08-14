@@ -113,7 +113,9 @@ export async function GET(request: NextRequest) {
       where.accountId = accountId
     }
     
-    if (categoryId) {
+    if (categoryId === 'null') {
+      where.categoryId = null
+    } else if (categoryId) {
       where.categoryId = categoryId
     }
     

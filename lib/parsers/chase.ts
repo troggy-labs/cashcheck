@@ -19,6 +19,7 @@ export interface ParsedTransaction {
   amountCents: number
   currency: string
   hashUnique: string
+  csvCategory?: string | null // Add CSV category field
 }
 
 export function parseChaseRow(
@@ -35,15 +36,13 @@ export function parseChaseRow(
     throw new Error(`Missing required fields in Chase CSV row: ${JSON.stringify(row)}`)
   }
   
-  // Build enhanced description with category and type if available (credit card format)
-  const category = pickHeader(row, ["Category"])
+  // Extract additional fields but don't modify description
+  const csvCategory = pickHeader(row, ["Category"])
   const type = pickHeader(row, ["Type"]) 
   const memo = pickHeader(row, ["Memo"])
   
+  // Build enhanced description with type and memo only (not category)
   let enhancedDescription = description
-  if (category && category !== description) {
-    enhancedDescription += ` [${category}]`
-  }
   if (type && type !== 'Sale') { // Only add type if it's not the default 'Sale'
     enhancedDescription += ` (${type})`
   }
@@ -77,6 +76,7 @@ export function parseChaseRow(
     descriptionNorm,
     amountCents,
     currency: 'USD',
-    hashUnique
+    hashUnique,
+    csvCategory: csvCategory || null
   }
 }

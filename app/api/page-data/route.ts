@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 import { getSessionFromRequest } from '@/lib/auth'
+import { initializeSessionDefaults } from '@/lib/session-setup'
 
 const prisma = new PrismaClient()
 
@@ -35,6 +36,9 @@ export async function GET(request: NextRequest) {
         { status: 400 }
       )
     }
+    
+    // Ensure session has default categories and rules
+    await initializeSessionDefaults(sessionId)
     
     const startDate = new Date(`${month}-01T00:00:00Z`)
     const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0, 23, 59, 59, 999)
@@ -127,6 +131,9 @@ export async function GET(request: NextRequest) {
     
     // Get categories for dropdowns
     const categories = await prisma.category.findMany({
+      where: {
+        sessionId: sessionId
+      },
       orderBy: [
         { kind: 'asc' },
         { name: 'asc' }

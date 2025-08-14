@@ -8,6 +8,7 @@ import { categorizeBatch } from '@/lib/categorization'
 import { processTransferDetection } from '@/lib/transfer-detection'
 import { detectCSVFormat, validateDetectedFormat } from '@/lib/csv-detector'
 import { getSessionFromRequest } from '@/lib/auth'
+import { initializeSessionDefaults } from '@/lib/session-setup'
 
 const prisma = new PrismaClient()
 
@@ -114,6 +115,9 @@ export async function POST(request: NextRequest) {
     }
     
     try {
+      // Ensure session has default categories and rules
+      await initializeSessionDefaults(sessionData.sessionId)
+      
       // Get or create account for the detected provider
       let account = await prisma.account.findFirst({
         where: {
