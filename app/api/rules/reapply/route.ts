@@ -1,11 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 import { categorizeTransaction } from '@/lib/categorization'
+import { getSessionFromRequest } from '@/lib/auth'
 
 const prisma = new PrismaClient()
 
 export async function POST(request: NextRequest) {
   try {
+    // Get session
+    const sessionData = getSessionFromRequest(request)
+    if (!sessionData) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
     const body = await request.json()
     const { month } = body
     
@@ -22,6 +32,7 @@ export async function POST(request: NextRequest) {
     // Get all transactions for the month (excluding transfers)
     const transactions = await prisma.transaction.findMany({
       where: {
+        sessionId: sessionData.sessionId,
         postedDate: { gte: startDate, lte: endDate },
         isTransfer: false
       }
@@ -42,7 +53,7 @@ export async function POST(request: NextRequest) {
         amountCents: transaction.amountCents,
         currency: transaction.currency,
         hashUnique: transaction.hashUnique
-      })
+      }, sessionData.sessionId)
       
       // Only update if category changed
       if (newCategoryId !== transaction.categoryId) {

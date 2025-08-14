@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
 import Link from 'next/link'
-import { ArrowRight, FileText, CheckCircle, Clock } from 'lucide-react'
+import { ArrowRight, FileText, CheckCircle } from 'lucide-react'
 
 export const metadata = {
   title: 'How to Download Your Venmo Transaction History | CashCheck',
