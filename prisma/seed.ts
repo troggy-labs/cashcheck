@@ -24,7 +24,7 @@ async function main() {
       sessionId: session.id,
       provider: Provider.CHASE,
       type: AccountType.CHECKING,
-      displayName: 'Chase Checking',
+      displayName: 'Chase',
       currency: 'USD',
     },
   })

@@ -83,7 +83,7 @@ export default function LandingPage() {
                 Chase Bank Import
               </h3>
               <p className="text-gray-600">
-                Upload your Chase checking account CSV statements. We&apos;ll automatically categorize 
+                Upload your Chase CSV statements. We&apos;ll automatically categorize 
                 every transaction and identify your spending patterns.
               </p>
             </div>

@@ -1,6 +1,6 @@
 0) Product scope & success
 In scope
-Upload CSV from Chase Checking and Venmo
+Upload CSV from Chase and Venmo
 Robust parsing & idempotent import (no duplicates)
 Categorization via simple rules; manual overrides
 Venmo fees as separate Expense > Fees transactions
@@ -131,7 +131,7 @@ model AppSetting {
 3.1 Header normalization helpers (server)
 normalizeHeader(s): lowercase, strip non‑alnum
 pickHeader(row, candidates[]): returns first matching column value from candidates
-3.2 Chase Checking CSV
+3.2 Chase CSV
 Headers (case/space tolerant):
 Post Date (primary), accept Posting Date as synonym
 Description
@@ -144,7 +144,7 @@ postedDate  = toDateOnly(postedAt, tz)
 descRaw     = pickHeader(row, ["Description"])
 amountCents = toCents(pickHeader(row, ["Amount"])) // sign preserved
 source      = CHASE
-account     = "Chase Checking"
+account     = "Chase"
 externalId  = null
 3.3 Venmo CSV
 Headers: Datetime, Type, From, To, Amount (total), Amount (fee), Note, ID
@@ -222,10 +222,10 @@ GET /api/page-data?month=YYYY-MM
 {
   "tiles": { "incomeCents": 0, "expenseCents": 0, "netCents": 0 },
   "byCategory": [{ "category": "Groceries", "expensesCents": 12345 }],
-  "byAccount": [{ "account": "Chase Checking", "incomeCents": 10000, "expensesCents": 5000 }],
+  "byAccount": [{ "account": "Chase", "incomeCents": 10000, "expensesCents": 5000 }],
   "counters": { "uncategorized": 3, "reviewTransfers": 1 },
   "categories": [{ "id":"...", "name":"Groceries", "kind":"EXPENSE" }],
-  "accounts": [{ "id":"...", "displayName":"Chase Checking" }]
+  "accounts": [{ "id":"...", "displayName":"Chase" }]
 }
 Transactions (table)
 GET /api/transactions?month=YYYY-MM&accountId=...&categoryId=...&q=...&page=1&pageSize=100&includeTransfers=false&onlyCandidates=false
@@ -341,7 +341,7 @@ export function normalizeDesc(s: string): string {
 }
 9) Seed data
 Accounts
-Chase Checking (provider=CHASE, type=CHECKING)
+Chase (provider=CHASE, type=CHECKING)
 Venmo (provider=VENMO, type=WALLET)
 Categories
 INCOME: Salary, Refunds, Misc

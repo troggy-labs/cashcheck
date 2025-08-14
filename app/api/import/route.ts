@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
       
       if (!account) {
         // Create account automatically for this session
-        const displayName = detectedProvider === Provider.CHASE ? 'Chase Checking' : 'Venmo'
+        const displayName = detectedProvider === Provider.CHASE ? 'Chase' : 'Venmo'
         const accountType = detectedProvider === Provider.CHASE ? AccountType.CHECKING : AccountType.WALLET
         
         account = await prisma.account.create({

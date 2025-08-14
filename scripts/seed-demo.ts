@@ -26,7 +26,7 @@ async function seedDemo() {
         sessionId: DEMO_SESSION_ID,
         provider: Provider.CHASE,
         type: AccountType.CHECKING,
-        displayName: 'Chase Checking'
+        displayName: 'Chase'
       }
     },
     update: {},
@@ -34,7 +34,7 @@ async function seedDemo() {
       sessionId: DEMO_SESSION_ID,
       provider: Provider.CHASE,
       type: AccountType.CHECKING,
-      displayName: 'Chase Checking',
+      displayName: 'Chase',
       currency: 'USD'
     }
   })
